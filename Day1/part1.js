@@ -2017,10 +2017,8 @@ module.exports = (id) => {
     let depthIncreasedCount = 0;
     let previousDepth;
     for (const currentDepth of depths ) {
-        console.log({currentDepth});
         if (parseInt(currentDepth) > previousDepth) depthIncreasedCount++    
         previousDepth = currentDepth;
-        console.log({previousDepth});
     } 
     
     process.stdout.write(`Depth increased ${depthIncreasedCount} times`);  

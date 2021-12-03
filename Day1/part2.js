@@ -1,12 +1,13 @@
 const fs = require('fs');
 
-const depths = fs.readFileSync('./depths.txt')
+let depths = fs.readFileSync('./depths.txt', {
+    encoding: "utf8",
+    flag: 'r'
+})
+
+depths = depths.split('\n').map(Number)
 
 let depthIncreasedCount = 0;
 let previousDepth;
-for (const currentDepth of depths) {
-    console.log({currentDepth});
-    if (parseInt(currentDepth) > previousDepth) depthIncreasedCount++    
-    previousDepth = currentDepth;
-    console.log({previousDepth});
-}
+
+// todo: 
