@@ -1,10 +1,10 @@
 #! /usr/bin/env node
 const { program } = require('commander')
-const list = require('./commands/list')
+const part = require('./commands/part')
 
 program
-    .command('list')
-    .description('List tasks')
-    .action(list)
+    .command('part <id>')
+    .description('Solve part')
+    .action(part)
 
 program.parse();
