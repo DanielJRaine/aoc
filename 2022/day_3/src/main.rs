@@ -1,3 +1,5 @@
+#![feature(iter_array_chunks)]
+
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fs;
 use ::phf::{OrderedMap, phf_map};
@@ -61,21 +63,8 @@ static CHAR_TO_PRIORITY_MAP: phf::OrderedMap<char, u32> = phf_ordered_map! {
 // the Elf that did the packing failed to follow this rule for exactly one item type per rucksack
 fn main() {
     let input = read_input();
-    
-    // the list of items for each rucksack is given as characters all on a single line
-    let rucksack_contents = input.lines();
-    let mut priority_sum = 0;
-    for rucksack_contents in rucksack_contents {
-        // find the item type that appears in both compartments of each rucksack.
-        let rucksack: Rucksack = Rucksack::new(Rucksack{ comp1: BTreeSet::new(), comp2: BTreeSet::new() }, rucksack_contents);
-        let mistakes: Vec<&char> = rucksack.comp1.intersection(&rucksack.comp2).collect();
-        let mistake = mistakes.first().expect("This rucksack is properly sorted");
-        
-        // what is the sum of the priorities of those item types?
-        priority_sum += (CHAR_TO_PRIORITY_MAP.get(&mistake).expect("Invalid char"));
-    }
-    
-    println!("{priority_sum}");
+    // puzzle_one()
+    puzzle_two(input)
 }
 
 // each rucksack has two large compartments
@@ -112,4 +101,41 @@ impl Rucksack {
 
 fn read_input() -> String {
     fs::read_to_string("input.txt").expect("Can't read file")
+}
+
+fn puzzle_one(input: String) {
+    let rucksack_contents = input.lines();
+    let mut priority_sum = 0;
+    for rucksack_contents in rucksack_contents {
+        // find the item type that appears in both compartments of each rucksack.
+        let rucksack: Rucksack = Rucksack::new(Rucksack{ comp1: BTreeSet::new(), comp2: BTreeSet::new() }, rucksack_contents);
+        let mistakes: Vec<&char> = rucksack.comp1.intersection(&rucksack.comp2).collect();
+        let mistake = mistakes.first().expect("This rucksack is properly sorted");
+        
+        // what is the sum of the priorities of those item types?
+        priority_sum += CHAR_TO_PRIORITY_MAP.get(&mistake).expect("Invalid char");
+    }
+    
+    println!("{priority_sum}");
+}
+
+fn puzzle_two(input: String) {
+    let rucksack_contents = input.lines();
+    // let mut priority_sum = 0;
+    
+    for elf_group in rucksack_contents.array_chunks::<3>() {
+        if let [rs1, rs2, rs3] = elf_group {
+            println!("1 {rs1}");
+            println!("2 {rs2}");
+            println!("3 {rs3}");
+        }
+        
+        // find the item type that appears in both compartments of each rucksack.
+        // let rucksack: Rucksack = Rucksack::new(Rucksack{ comp1: BTreeSet::new(), comp2: BTreeSet::new() }, rucksack_contents);
+        // let mistakes: Vec<&char> = rucksack.comp1.intersection(&rucksack.comp2).collect();
+        // let mistake = mistakes.first().expect("This rucksack is properly sorted");
+        
+        // what is the sum of the priorities of those item types?
+        // priority_sum += (CHAR_TO_PRIORITY_MAP.get(&mistake).expect("Invalid char"));
+    }
 }
