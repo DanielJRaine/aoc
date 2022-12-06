@@ -81,8 +81,7 @@ impl Rucksack {
         let size = contents.len();
         
         // all items of a given type are meant to go into exactly one of the two compartments
-        
-        // so the first half of the characters represent items in the first compartment,
+        // so the first half of the characters represent items in the first compartment...
         let comp1_items = &contents[..size/2];
         for item in comp1_items.chars() {
             self.comp1.insert(item);
@@ -127,9 +126,6 @@ fn puzzle_two(input: String) {
     
     for elf_group in rucksack_contents.array_chunks::<3>() {
         if let [rs1, rs2, rs3] = elf_group {
-            // println!("1 {rs1}");
-            // println!("2 {rs2}");
-            // println!("3 {rs3}");
             let item_set_1 = BTreeSet::from_iter(rs1.chars());
             let item_set_2 = BTreeSet::from_iter(rs2.chars());
             
@@ -139,31 +135,18 @@ fn puzzle_two(input: String) {
             }
             let mut item_set_3: BTreeSet<&char> = BTreeSet::from_iter(&c_vec);
             
-            // println!("1 items: {:?}", item_set_1);
-            // println!("2 items: {:?}", item_set_2);
-            // println!("3 items: {:?}", item_set_3);
-            
             let intersect_1_2: Vec<&char> = item_set_1.intersection(&item_set_2).collect();
             
             let potential_badges = BTreeSet::from_iter(intersect_1_2);
-            // println!("{:?}", potential_badges);
-            // println!("{:?}", &item_set_3);
             let intersect_1_2_3 = potential_badges.intersection(&item_set_3);
+            
             let team_badges = intersect_1_2_3.collect::<Vec<&&char>>();
             
             for badge in team_badges {
                 priority_sum += CHAR_TO_PRIORITY_MAP.get(&badge).expect("Invalid badge");
             }
         }
-        
-        
-        // find the item type that appears in both compartments of each rucksack.
-        // let rucksack: Rucksack = Rucksack::new(Rucksack{ comp1: BTreeSet::new(), comp2: BTreeSet::new() }, rucksack_contents);
-        // let mistakes: Vec<&char> = rucksack.comp1.intersection(&rucksack.comp2).collect();
-        // let mistake = mistakes.first().expect("This rucksack is properly sorted");
-        
-        // what is the sum of the priorities of those item types?
-        // priority_sum += (CHAR_TO_PRIORITY_MAP.get(&mistake).expect("Invalid char"));
     }
+    
     println!("{priority_sum}");
 }
