@@ -1,7 +1,9 @@
 #![feature(iter_array_chunks)]
 
+use std::borrow::Borrow;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fs;
+use std::str::Chars;
 use ::phf::{OrderedMap, phf_map};
 use phf::phf_ordered_map;
 
@@ -121,14 +123,39 @@ fn puzzle_one(input: String) {
 
 fn puzzle_two(input: String) {
     let rucksack_contents = input.lines();
-    // let mut priority_sum = 0;
+    let mut priority_sum = 0;
     
     for elf_group in rucksack_contents.array_chunks::<3>() {
         if let [rs1, rs2, rs3] = elf_group {
-            println!("1 {rs1}");
-            println!("2 {rs2}");
-            println!("3 {rs3}");
+            // println!("1 {rs1}");
+            // println!("2 {rs2}");
+            // println!("3 {rs3}");
+            let item_set_1 = BTreeSet::from_iter(rs1.chars());
+            let item_set_2 = BTreeSet::from_iter(rs2.chars());
+            
+            let mut c_vec = vec![];
+            for mut c in rs3.chars() {
+                c_vec.push(c.clone())
+            }
+            let mut item_set_3: BTreeSet<&char> = BTreeSet::from_iter(&c_vec);
+            
+            // println!("1 items: {:?}", item_set_1);
+            // println!("2 items: {:?}", item_set_2);
+            // println!("3 items: {:?}", item_set_3);
+            
+            let intersect_1_2: Vec<&char> = item_set_1.intersection(&item_set_2).collect();
+            
+            let potential_badges = BTreeSet::from_iter(intersect_1_2);
+            // println!("{:?}", potential_badges);
+            // println!("{:?}", &item_set_3);
+            let intersect_1_2_3 = potential_badges.intersection(&item_set_3);
+            let team_badges = intersect_1_2_3.collect::<Vec<&&char>>();
+            
+            for badge in team_badges {
+                priority_sum += CHAR_TO_PRIORITY_MAP.get(&badge).expect("Invalid badge");
+            }
         }
+        
         
         // find the item type that appears in both compartments of each rucksack.
         // let rucksack: Rucksack = Rucksack::new(Rucksack{ comp1: BTreeSet::new(), comp2: BTreeSet::new() }, rucksack_contents);
@@ -138,4 +165,5 @@ fn puzzle_two(input: String) {
         // what is the sum of the priorities of those item types?
         // priority_sum += (CHAR_TO_PRIORITY_MAP.get(&mistake).expect("Invalid char"));
     }
+    println!("{priority_sum}");
 }
