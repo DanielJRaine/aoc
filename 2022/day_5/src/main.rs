@@ -1,5 +1,7 @@
 use std::{env, fs, io};
+use std::env::{current_dir, set_current_dir};
 use std::fmt::Error;
+use std::fs::{create_dir, File};
 use std::path::PathBuf;
 use std::io::prelude::*;
 
@@ -26,44 +28,65 @@ fn puzzle1(input: &str) -> io::Result<()> {
     let lines = input.lines();
     
     let current_dir = env::current_dir()?;
-    println!("{:?}", &current_dir);
     
     for line in lines {
         // if starts_with;
-        if line.starts_with("$") {
-            parse_command(&line[1..])
+        if line.starts_with('$') {
+            parse_command(&line[2..]);
+        } else {
+            grow_tree(&line);
         }
-            // mkdir
-            // cd
-            // ls (skip to next line?)
-        // else
-            // touch file (or create file)
     }
     
     Ok(())
 }
 
 fn parse_command(command: &str) {
-    println!("{command}");
+    println!("parse_command:{}", command);
+    let mut command_iter = command.split_whitespace();
+    
+    match command_iter.next() {
+        Some("cd") => cd(command_iter.next().unwrap()),
+        Some("ls") => ls(),
+        None => println!("None {}", command),
+        _ => println!("_ {command}"),
+    };
 }
 
-fn create_file() {
-    todo!()
+fn create_file(file: &str) {
+    File::create(file);
+    println!("create_file: {file}");
 }
 
-fn cd() {
-    todo!()
+fn cd(dir: &str) {
+    // mkdir(dir);
+    println!("cd: {dir}");
+    if dir == "/" {
+        set_current_dir("root_dir");
+    } else {
+        set_current_dir(dir);
+    }
 }
 
-fn mkdir() {
-    todo!()
+fn mkdir(dir: &str) {
+    create_dir(dir);
 }
 
 fn ls() {
-    todo!()
+    let paths = fs::read_dir(current_dir().unwrap()).unwrap();
+    
+    for path in paths {
+        println!("file_name: {}", path.unwrap().path().display())
+    }
 }
 
-fn grow_tree() -> io::Result<()> {
+fn grow_tree(line: &str) -> io::Result<()> {
+    let mut line_iter = line.split_whitespace();
+    match line_iter.next() {
+        Some("dir") => mkdir(line_iter.next().unwrap()),
+        _ => create_file(line_iter.next().unwrap()),
+    };
+    
     Ok(())
 }
 
