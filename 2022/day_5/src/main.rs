@@ -84,7 +84,7 @@ fn grow_tree(line: &str) -> io::Result<()> {
     let mut line_iter = line.split_whitespace();
     match line_iter.next() {
         Some("dir") => mkdir(line_iter.next().unwrap()),
-        _ => create_file(line_iter.next().unwrap()),
+        _ => create_file(line),
     };
     
     Ok(())
