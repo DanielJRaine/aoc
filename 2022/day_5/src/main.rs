@@ -1,9 +1,12 @@
+#![feature(try_trait_v2_yeet)]
+
 use std::{env, fs, io};
 use std::env::{current_dir, set_current_dir};
 use std::fmt::Error;
-use std::fs::{create_dir, File};
+use std::fs::{create_dir, File, Metadata};
 use std::path::PathBuf;
 use std::io::prelude::*;
+use std::ops::Yeet;
 
 fn read_input() -> String {
     fs::read_to_string("input.txt").expect("Can't read file")
@@ -53,9 +56,15 @@ fn parse_command(command: &str) {
     };
 }
 
-fn create_file(file: &str) {
+fn create_file(file: &str) -> (Metadata, Error) {
     File::create(file);
+    let metadata = fs::metadata("foo.txt").expect("read error");
     println!("create_file: {file}");
+    println!("{:?}", metadata);
+    println!("{:?}", metadata.file_type());
+    println!("{:?}", metadata.is_file());
+    println!("{:?}", metadata.is_dir());
+    (metadata, Error)
 }
 
 fn cd(dir: &str) {
@@ -80,14 +89,12 @@ fn ls() {
     }
 }
 
-fn grow_tree(line: &str) -> io::Result<()> {
+fn grow_tree(line: &str) -> io::Result<(&str, Error)> {
     let mut line_iter = line.split_whitespace();
     match line_iter.next() {
         Some("dir") => mkdir(line_iter.next().unwrap()),
-        _ => create_file(line),
-    };
-    
-    Ok(())
+        _ => Ok(create_file(line)),
+    }
 }
 
 fn traverse_tree() -> io::Result<()> {
