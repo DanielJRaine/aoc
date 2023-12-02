@@ -46,9 +46,23 @@ struct Game {
 impl FromStr for Game {
     type Err = ErrReport;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
+        // Game
+        // :
+        // id
+        // /whitespace
+        let mut tokens: Vec<&str> = input.splitn(2, ": ").collect();
+        let rounds_substr = tokens.pop().unwrap();
+        let id_token =  tokens.pop().unwrap();
+        let id_digits: Vec<String> = id_token.chars()
+            .filter(|char| char.is_numeric())
+            .map(|char| char.to_string())
+            .collect();
+        let id = id_digits.join("").parse().unwrap();
+        
+        dbg!(id);
         
         Ok(Game {
-            id: 0,
+            id,
             rounds: vec![Round { r: 1, g: 2, b: 3 }],
             r: 0,
             g: 0,
@@ -79,22 +93,10 @@ fn parse_id(line: &str) -> u32 {
     0
 }
 
-fn parse_game(line: &str) -> Game {
-    println!("{}", line);
-    
-    Game {
-        id: parse_id(line),
-        rounds: vec![],
-        r: 1,
-        g: 2,
-        b: 3,
-    }
-}
-
 fn part1() -> Result<()> {
     let input: String = read_input();
     for line in input.lines() {
-        let game = parse_game(line);
+        let game = Game::from_str(line);
     }
     
     println!("");
