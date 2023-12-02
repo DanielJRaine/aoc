@@ -7,6 +7,5 @@ edition = "2021"
 
 [dependencies]
 eyre = "0.6.9"
-jane-eyre = "0.3.0"
 regex = { version = "1.10.2", features = [] }
 log = "0.4.20"

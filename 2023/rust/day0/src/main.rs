@@ -1,6 +1,16 @@
-use std::{env, fs};
+// Secret number of cubes of each color
+// Goal: figure out info about the number of cubes
+// which games would have been possible
+// if the bag contained only 12 red cubes, 13 green cubes, and 14 blue cubes
+// add up the ids of these games
+
+use std::{env};
+use std::collections::HashMap;
+use std::fs::read_to_string;
 use eyre::{bail, eyre};
+use jane_eyre::owo_colors::OwoColorize;
 use jane_eyre::Result;
+use regex::{Regex};
 
 fn main() -> Result<()> {
     jane_eyre::install()?;
@@ -19,24 +29,35 @@ fn main() -> Result<()> {
 }
 
 fn read_input() -> String {
-    fs::read_to_string("input.txt").expect("Can't read file")
+    read_to_string("input.txt").expect("Can't read file")
 }
 
 fn part1() -> Result<()> {
-    dbg!("day 1, part 1");
+    let input: String = read_input();
+    for line in input.lines() {
+    
+    }
+    
+    println!("");
     Ok(())
 }
 
 fn part2() -> Result<()> {
-    dbg!("day 1, part 2");
+    todo!();
+    let input: String = read_input();
+    
+    for line in input.lines() {
+    }
+    
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn it_works() {
-        let result = 1 + 1;
-        assert_eq!(result, 2);
-    }
+    use super::*;
+    
+    // #[test]
+    // fn it_parses() {
+    //     assert_eq!(18, parse_alphanumeric("oneight"))
+    // }
 }
