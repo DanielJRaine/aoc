@@ -1,0 +1,6 @@
+bookmark (for file tree):
+$ cd ..
+$ cd ..
+$ cd qzgjp
+$ ls
+
