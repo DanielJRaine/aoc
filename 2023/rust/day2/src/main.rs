@@ -149,13 +149,23 @@ fn part1() -> Result<()> {
 	Ok(())
 }
 
+fn max_power(game: &Game) -> u32 {
+	let (r, g, b) = max_scores(game);
+	r * g * b
+}
+
 fn part2() -> Result<()> {
 	// fewest number of cubes of each color that could have been in the bag
 	// to make the game possible?
 	let input: String = read_input();
+	let mut acc = 0;
 	
-	for line in input.lines() {}
+	for line in input.lines() {
+		let game = Game::from_str(line).unwrap();
+		acc += max_power(&game)
+	}
 	
+	println!("{acc}");
 	Ok(())
 }
 
