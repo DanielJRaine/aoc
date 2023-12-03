@@ -39,6 +39,7 @@ fn read_input() -> String {
 // row, column
 type Position = (u32, u32);
 
+#[derive(Debug)]
 struct Grid {
     data: Vec<Vec<GridCell>>,
     col_cursor: u32,
@@ -47,6 +48,12 @@ struct Grid {
 
 impl Grid {
     fn new (input: &str) -> Grid {
+        let mut data = vec![];
+        let mut lines = input.lines();
+        for line in lines {
+            data.push(line.chars().collect::<Vec<char>>());
+        }
+        dbg!(data.len());
         Grid {
             data: vec![],
             col_cursor: 0,
@@ -55,14 +62,32 @@ impl Grid {
     }
     
     fn find_adjacent_numbers(pos: Position) -> Vec<GridCell> {
-        
         vec![]
     }
 }
 
+#[derive(Debug)]
 struct GridCell {
     pos: Position,
     val: char
+}
+
+impl GridCell {
+    fn up(&self) -> &GridCell {
+        todo!()
+    }
+    fn down(&self) -> &GridCell {
+        
+        todo!()
+    }
+    fn left(&self) -> &GridCell {
+        
+        todo!()
+    }
+    fn right(&self) -> &GridCell {
+        
+        todo!()
+    }
 }
 
 fn scan_for_symbols(symbols: [char; 10]) -> Vec<GridCell> {
@@ -91,7 +116,7 @@ fn part1() -> Result<()> {
     // add part numbers
     
     let input: String = aoc::read_input();
-    println!("{input}");
+    let grid = Grid::new(&input);
     let mut acc = 0;
     for line in input.lines() {
         // acc += ?
