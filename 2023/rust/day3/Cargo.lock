@@ -100,6 +100,7 @@ dependencies = [
  "aoc",
  "eyre",
  "jane-eyre",
+ "lazy_static",
  "log",
  "num",
  "regex",

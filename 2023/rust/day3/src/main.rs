@@ -11,10 +11,39 @@ use std::fs::read_to_string;
 use eyre::{bail, eyre, Error, ErrReport};
 use jane_eyre::owo_colors::OwoColorize;
 use jane_eyre::Result;
-use regex::{Regex};
+use regex::{Regex, RegexSet};
 use log::debug;
 
 use aoc;
+
+const SYMBOLS: [char; 10] = [
+'*',
+'/',
+'%',
+'@',
+'+',
+'=',
+'$',
+'#',
+'&',
+'-',
+];
+
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref REGEXES: [Regex; 10] = [
+        Regex::new("[*]").unwrap(),
+        Regex::new("[/]").unwrap(),
+        Regex::new("[%]").unwrap(),
+        Regex::new("[@]").unwrap(),
+        Regex::new("[+]").unwrap(),
+        Regex::new("[=]").unwrap(),
+        Regex::new("[$]").unwrap(),
+        Regex::new("[#]").unwrap(),
+        Regex::new("[&]").unwrap(),
+        Regex::new("[-]").unwrap(),
+    ];
+}
 
 fn main() -> Result<()> {
     jane_eyre::install()?;
@@ -37,13 +66,13 @@ fn read_input() -> String {
 }
 
 // row, column
-type Position = (u32, u32);
+type Position = (usize, usize);
 
 #[derive(Debug)]
 struct Grid<'a> {
     data: Vec<Vec<GridCell<'a>>>,
-    col_cursor: u32,
-    row_cursor: u32,
+    col_cursor: usize,
+    row_cursor: usize,
 }
 
 impl Grid<'_> {
@@ -75,7 +104,8 @@ struct GridCell<'a> {
 
 impl GridCell<'_> {
     fn up(&self) -> &GridCell {
-        
+        dbg!(&self.grid.data);
+        // self.grid.data[*self.pos.0.clone()][*self.pos.1 - 1.clone()];
         todo!()
     }
     fn down(&self) -> &GridCell {
@@ -92,37 +122,32 @@ impl GridCell<'_> {
     }
 }
 
-fn scan_for_symbols(symbols: [char; 10]) -> Vec<GridCell<'static>> {
+fn scan_for_symbols(line: &str, index: usize) -> Vec<GridCell<'static>> {
+    dbg!(line);
+    // Compile a set matching any of our patterns.
+    
     vec![]
 }
 
 fn part1() -> Result<()> {
-    // scan for symbols
-    let grid_positions = scan_for_symbols([
-        '*',
-        '/',
-        '%',
-        '@',
-        '+',
-        '=',
-        '$',
-        '#',
-        '&',
-        '-',
-    ]);
-    
     // build up a matrix? assign coordinates?
+    let input: String = aoc::read_input();
+    let grid = Grid::new(&input);
+    
+    let mut acc = 0;
+    let mut symbol_cells = vec![];
+    
+    let mut i = 0usize;
+    for line in input.lines() {
+         symbol_cells.push(scan_for_symbols(line, i));
+        // acc += ?
+        i+=1;
+    }
     // check for adjacency
     // find the rest of the part number
     // remove duplicate part numbers
     // add part numbers
     
-    let input: String = aoc::read_input();
-    let grid = Grid::new(&input);
-    let mut acc = 0;
-    for line in input.lines() {
-        // acc += ?
-    }
     
     // println!("{acc}");
     Ok(())
