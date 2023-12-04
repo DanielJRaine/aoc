@@ -40,13 +40,13 @@ fn read_input() -> String {
 type Position = (u32, u32);
 
 #[derive(Debug)]
-struct Grid {
-    data: Vec<Vec<GridCell>>,
+struct Grid<'a> {
+    data: Vec<Vec<GridCell<'a>>>,
     col_cursor: u32,
     row_cursor: u32,
 }
 
-impl Grid {
+impl Grid<'_> {
     fn new (input: &str) -> Grid {
         let mut data = vec![];
         let mut lines = input.lines();
@@ -61,19 +61,21 @@ impl Grid {
         }
     }
     
-    fn find_adjacent_numbers(pos: Position) -> Vec<GridCell> {
+    fn find_adjacent_numbers(pos: Position) -> Vec<GridCell<'static>> {
         vec![]
     }
 }
 
 #[derive(Debug)]
-struct GridCell {
+struct GridCell<'a> {
+    grid: &'a Grid<'a>,
     pos: Position,
     val: char
 }
 
-impl GridCell {
+impl GridCell<'_> {
     fn up(&self) -> &GridCell {
+        
         todo!()
     }
     fn down(&self) -> &GridCell {
@@ -90,7 +92,7 @@ impl GridCell {
     }
 }
 
-fn scan_for_symbols(symbols: [char; 10]) -> Vec<GridCell> {
+fn scan_for_symbols(symbols: [char; 10]) -> Vec<GridCell<'static>> {
     vec![]
 }
 
