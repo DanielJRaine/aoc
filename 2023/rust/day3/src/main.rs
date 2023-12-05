@@ -8,7 +8,6 @@ use std::{env};
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::fs::read_to_string;
-use std::marker::PhantomData;
 use eyre::{bail, eyre, Error, ErrReport};
 use jane_eyre::owo_colors::OwoColorize;
 use jane_eyre::Result;
@@ -56,7 +55,7 @@ fn main() -> Result<()> {
     
     let part_number = &args[1];
     match part_number.as_str() {
-        "1" => part1(),
+        "1" => part1::<char>(),
         "2" => part2(),
         _ => Err(eyre!("Select part 1 or 2")),
     }
@@ -70,15 +69,14 @@ fn read_input() -> String {
 type Position = (usize, usize);
 
 #[derive(Debug)]
-struct Grid<'a, T> {
-    data: Vec<Vec<GridCell<'a, T>>>,
-    phantom: PhantomData<&'a mut T>,
+struct Grid {
+    data: Vec<Vec<GridCell>>,
     col_cursor: usize,
     row_cursor: usize,
 }
 
-impl Grid<'_, GridCell<'_, char>> {
-    fn new (input: &str) -> Grid<GridCell<char>> {
+impl Grid {
+    fn new (input: &str) -> Grid {
         let mut data = vec![];
         let mut lines = input.lines();
         for line in lines {
@@ -87,48 +85,44 @@ impl Grid<'_, GridCell<'_, char>> {
         dbg!(data.len());
         Grid {
             data: vec![],
-            phantom: Default::default(),
             col_cursor: 0,
             row_cursor: 0,
         }
     }
     
-    fn find_adjacent_numbers(pos: Position) -> Vec<GridCell<'static, char>> {
+    fn find_adjacent_numbers(pos: Position) -> Vec<GridCell> {
         vec![]
+    }
+    
+    fn up(&self, pos: Position) -> &GridCell {
+        dbg!(&self.data);
+        todo!("add array boundary checks");
+        let what = &self.data[pos.0][pos.1 - 1];
+        what
+    }
+    
+    fn down(&self, pos: Position) -> &GridCell {
+        &self.data[pos.0][pos.1 + 1]
+    }
+    
+    fn left(&self, pos: Position) -> &GridCell {
+        &self.data[pos.0 - 1][pos.1]
+    }
+    
+    fn right(&self, pos: Position) -> &GridCell {
+        &self.data[pos.0 + 1][pos.1]
     }
 }
 
 #[derive(Debug)]
-struct GridCell<'a, T> {
-    // grid: &'a Grid<'a>,
+struct GridCell {
     pos: Position,
     val: char,
-    phantom: PhantomData<&'a T>
 }
 
-impl GridCell<'_, char> {
-    fn up(&self) -> &GridCell<char> {
-        // dbg!(&self.grid.data);
-        // self.grid.data[*self.pos.0.clone()][*self.pos.1 - 1.clone()];
-        todo!()
-    }
-    fn down(&self) -> &GridCell<char> {
-        
-        todo!()
-    }
-    fn left(&self) -> &GridCell<char> {
-        
-        todo!()
-    }
-    fn right(&self) -> &GridCell<char> {
-        
-        todo!()
-    }
-}
-
-fn scan_for_symbols(line: &str, row_cursor: usize) -> Vec<GridCell<'static, char>> {
+fn scan_for_symbols(line: &str, row_cursor: usize) -> Vec<GridCell> {
     // Compile a set matching any of our patterns.
-    let mut grid_cells: Vec<GridCell<char>> = vec![];
+    let mut grid_cells: Vec<GridCell> = vec![];
     let mut map: HashMap<char, Vec<usize>> = HashMap::new();
     for (column_cursor, c) in line.chars().enumerate() {
         if SYMBOLS.contains(&c) {
@@ -136,7 +130,6 @@ fn scan_for_symbols(line: &str, row_cursor: usize) -> Vec<GridCell<'static, char
             grid_cells.push(GridCell {
                 pos: (row_cursor, column_cursor),
                 val: c,
-                phantom: Default::default(),
             });
             // map.entry(c).or_insert(Vec::new()).push(i);
         }
@@ -146,7 +139,7 @@ fn scan_for_symbols(line: &str, row_cursor: usize) -> Vec<GridCell<'static, char
     grid_cells
 }
 
-fn part1() -> Result<()> {
+fn part1<T>() -> Result<()> {
     // build up a matrix? assign coordinates?
     let input: String = aoc::read_input();
     let grid = Grid::new(&input);
@@ -161,13 +154,17 @@ fn part1() -> Result<()> {
         i+=1;
     }
     
-    let symbol_cells: Vec<&GridCell<'_, char>> = symbol_vec.iter().flatten().collect();
+    let symbol_cells: Vec<&GridCell> = symbol_vec.iter().flatten().collect();
+    
     // check for adjacency
+    for symbol_cell in symbol_cells {
+        grid.up(symbol_cell.pos);
+    }
+    
     // find the rest of the part number
     // remove duplicate part numbers
     // add part numbers
     
-    dbg!(&symbol_cells);
     // println!("{acc}");
     Ok(())
 }
