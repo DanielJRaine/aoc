@@ -8,6 +8,7 @@ use std::{env};
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::fs::read_to_string;
+use std::marker::PhantomData;
 use eyre::{bail, eyre, Error, ErrReport};
 use jane_eyre::owo_colors::OwoColorize;
 use jane_eyre::Result;
@@ -69,14 +70,15 @@ fn read_input() -> String {
 type Position = (usize, usize);
 
 #[derive(Debug)]
-struct Grid<'a> {
-    data: Vec<Vec<GridCell<'a>>>,
+struct Grid<'a, T> {
+    data: Vec<Vec<GridCell<'a, T>>>,
+    phantom: PhantomData<&'a mut T>,
     col_cursor: usize,
     row_cursor: usize,
 }
 
-impl Grid<'_> {
-    fn new (input: &str) -> Grid {
+impl Grid<'_, GridCell<'_, char>> {
+    fn new (input: &str) -> Grid<GridCell<char>> {
         let mut data = vec![];
         let mut lines = input.lines();
         for line in lines {
@@ -85,47 +87,65 @@ impl Grid<'_> {
         dbg!(data.len());
         Grid {
             data: vec![],
+            phantom: Default::default(),
             col_cursor: 0,
             row_cursor: 0,
         }
     }
     
-    fn find_adjacent_numbers(pos: Position) -> Vec<GridCell<'static>> {
+    fn find_adjacent_numbers(pos: Position) -> Vec<GridCell<'static, char>> {
         vec![]
     }
 }
 
 #[derive(Debug)]
-struct GridCell<'a> {
-    grid: &'a Grid<'a>,
+struct GridCell<'a, T> {
+    // grid: &'a Grid<'a>,
     pos: Position,
-    val: char
+    val: char,
+    phantom: PhantomData<&'a T>
 }
 
-impl GridCell<'_> {
-    fn up(&self) -> &GridCell {
-        dbg!(&self.grid.data);
+impl GridCell<'_, char> {
+    fn up(&self) -> &GridCell<char> {
+        // dbg!(&self.grid.data);
         // self.grid.data[*self.pos.0.clone()][*self.pos.1 - 1.clone()];
         todo!()
     }
-    fn down(&self) -> &GridCell {
+    fn down(&self) -> &GridCell<char> {
         
         todo!()
     }
-    fn left(&self) -> &GridCell {
+    fn left(&self) -> &GridCell<char> {
         
         todo!()
     }
-    fn right(&self) -> &GridCell {
+    fn right(&self) -> &GridCell<char> {
         
         todo!()
     }
 }
 
-fn scan_for_symbols(line: &str, index: usize) -> Vec<GridCell<'static>> {
-    dbg!(line);
+fn scan_for_symbols(line: &str, row_cursor: usize) -> Vec<GridCell<'static, char>> {
     // Compile a set matching any of our patterns.
+    let mut grid_cells: Vec<GridCell<char>> = vec![];
+    let mut map: HashMap<char, Vec<usize>> = HashMap::new();
+    for (column_cursor, c) in line.chars().enumerate() {
+        if SYMBOLS.contains(&c) {
+            // translate this to positions (x, y) (, i)
+            grid_cells.push(GridCell {
+                pos: (row_cursor, column_cursor),
+                val: c,
+                phantom: Default::default(),
+            });
+            // map.entry(c).or_insert(Vec::new()).push(i);
+        }
+    }
     
+    // for m in line.contains(SYMBOLS).into_iter() {
+    //     dbg!(m);
+    // }
+    // dbg!(map);
     vec![]
 }
 
