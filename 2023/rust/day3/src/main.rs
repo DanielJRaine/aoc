@@ -142,11 +142,8 @@ fn scan_for_symbols(line: &str, row_cursor: usize) -> Vec<GridCell<'static, char
         }
     }
     
-    // for m in line.contains(SYMBOLS).into_iter() {
-    //     dbg!(m);
-    // }
-    // dbg!(map);
-    vec![]
+    dbg!(&grid_cells);
+    grid_cells
 }
 
 fn part1() -> Result<()> {
@@ -155,20 +152,22 @@ fn part1() -> Result<()> {
     let grid = Grid::new(&input);
     
     let mut acc = 0;
-    let mut symbol_cells = vec![];
+    let mut symbol_vec = vec![];
     
     let mut i = 0usize;
     for line in input.lines() {
-         symbol_cells.push(scan_for_symbols(line, i));
+         symbol_vec.push(scan_for_symbols(line, i));
         // acc += ?
         i+=1;
     }
+    
+    let symbol_cells: Vec<&GridCell<'_, char>> = symbol_vec.iter().flatten().collect();
     // check for adjacency
     // find the rest of the part number
     // remove duplicate part numbers
     // add part numbers
     
-    
+    dbg!(&symbol_cells);
     // println!("{acc}");
     Ok(())
 }
