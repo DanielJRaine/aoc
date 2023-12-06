@@ -121,16 +121,41 @@ impl Grid {
         }
     }
     
-    fn down(&self, pos: Position) -> &GridCell {
-        &self.data[pos.0][pos.1 + 1]
+    fn down(&self, pos: Position) -> Option<&GridCell> {
+        // &self.data[pos.0][pos.1 + 1]
+        // todo!("add array boundary checks");
+        if pos.1 > self.data[0].len() {
+            None
+        } else {
+            let cell = &self.data
+                .get(pos.0 + 1)
+                .and_then(|row| row.get(pos.1));
+            *cell
+        }
     }
     
-    fn left(&self, pos: Position) -> &GridCell {
-        &self.data[pos.0 - 1][pos.1]
+    fn left(&self, pos: Position) -> Option<&GridCell> {
+        // &self.data[pos.0 - 1][pos.1]
+        if pos.1 > self.data[0].len() {
+            None
+        } else {
+            let cell = &self.data
+                .get(pos.0)
+                .and_then(|row| row.get(pos.1 - 1));
+            *cell
+        }
     }
     
-    fn right(&self, pos: Position) -> &GridCell {
-        &self.data[pos.0 + 1][pos.1]
+    fn right(&self, pos: Position) -> Option<&GridCell> {
+        // &self.data[pos.0 + 1][pos.1]
+        if pos.1 > self.data[0].len() {
+            None
+        } else {
+            let cell = &self.data
+                .get(pos.0)
+                .and_then(|row| row.get(pos.1 + 1));
+            *cell
+        }
     }
     
     fn expand_part_number(&self, pos: &Position) -> String {
@@ -205,16 +230,30 @@ fn part1<T>() -> Result<()> {
     for symbol_cell in symbol_cells {
         // check for adjacent numeric chars
         
-        let up_cell: &GridCell;
+        let (up_cell, down_cell, right_cell, left_cell);
         if grid.up(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             up_cell = grid.up(symbol_cell.pos).unwrap();
             dbg!(up_cell);
         }
         
-        // grid.down(symbol_cell.pos);
-        // grid.left(symbol_cell.pos);
-        // grid.right(symbol_cell.pos);
+        if grid.down(symbol_cell.pos)
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            down_cell = grid.down(symbol_cell.pos).unwrap();
+            dbg!(down_cell);
+        }
+        
+        if grid.left(symbol_cell.pos)
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            left_cell = grid.left(symbol_cell.pos).unwrap();
+            dbg!(left_cell);
+        }
+        
+        if grid.right(symbol_cell.pos)
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            right_cell = grid.right(symbol_cell.pos).unwrap();
+            dbg!(right_cell);
+        }
         
         // todo: make these chainable
         // let upleft = grid.up(symbol_cell.pos)
