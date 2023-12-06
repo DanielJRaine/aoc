@@ -8,11 +8,11 @@ use std::{env};
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::fs::read_to_string;
-use eyre::{bail, eyre, Error, ErrReport};
+use std::iter::Iterator;
+use eyre::{bail, eyre};
 use jane_eyre::owo_colors::OwoColorize;
 use jane_eyre::Result;
-use regex::{Regex, RegexSet};
-use log::debug;
+use regex::{Regex};
 
 use aoc;
 
@@ -28,6 +28,8 @@ const SYMBOLS: [char; 10] = [
 '&',
 '-',
 ];
+
+const SYMBOL_STR: &str = "*/%@+=$#&-";
 
 const UNICODE_NULL: char = '\0';
 const NULL_GRIDCELL: GridCell = GridCell {
@@ -132,6 +134,19 @@ impl Grid {
     fn right(&self, pos: Position) -> &GridCell {
         &self.data[pos.0 + 1][pos.1]
     }
+    
+    fn expand_part_number(&self, pos: Position) -> &'static str {
+        // move left until "."
+        
+        let right = &self.data[pos.0].iter().skip().take_while(|cell| cell.val.is_numeric());
+        let left = &self.data[pos.0].iter().rev().skip().take_while(|cell| cell.val.is_numeric());
+        //  center?
+        dbg!();
+        // move right until "."
+        
+        // concat
+        todo!()
+    }
 }
 
 #[derive(Debug)]
@@ -178,10 +193,14 @@ fn part1<T>() -> Result<()> {
     
     // check for adjacency
     for symbol_cell in symbol_cells {
-        grid.up(symbol_cell.pos);
-        grid.down(symbol_cell.pos);
-        grid.left(symbol_cell.pos);
-        grid.right(symbol_cell.pos);
+        // check for adjacent numeric chars
+        grid.up(symbol_cell.pos)
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric())
+            .then(|| symbol_cell);
+        
+        // grid.down(symbol_cell.pos);
+        // grid.left(symbol_cell.pos);
+        // grid.right(symbol_cell.pos);
         
         // todo: make these chainable
         // let upleft = grid.up(symbol_cell.pos)
@@ -227,8 +246,14 @@ fn part2() -> Result<()> {
 mod tests {
     use super::*;
     
-    // #[test]
-    // fn it_parses() {
-    //     assert_eq!(18, parse_alphanumeric("oneight"))
-    // }
+    #[test]
+    fn it_concats_left_right_and_center() {
+        let chars = vec!['.', '1', '2', '3', '4', '.', '1'];
+        
+        let right: Vec<&char> = chars.iter().skip(3).take_while(|char| char.is_numeric()).collect();
+        assert_eq!(vec![&'3', &'4'], right);
+        
+        let left: Vec<&char> = chars.iter().rev().skip(4).take_while(|char| char.is_numeric()).collect();
+        assert_eq!(vec![&'2', &'1'], left)
+    }
 }
