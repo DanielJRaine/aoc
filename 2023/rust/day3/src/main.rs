@@ -29,6 +29,12 @@ const SYMBOLS: [char; 10] = [
 '-',
 ];
 
+const UNICODE_NULL: char = '\0';
+const NULL_GRIDCELL: GridCell = GridCell {
+    pos: (0,0),
+    val: UNICODE_NULL,
+};
+
 use lazy_static::lazy_static;
 lazy_static! {
     static ref REGEXES: [Regex; 10] = [
@@ -77,12 +83,21 @@ struct Grid {
 
 impl Grid {
     fn new (input: &str) -> Grid {
-        let mut data = vec![];
         let mut lines = input.lines();
-        for line in lines {
-            data.push(line.chars().collect::<Vec<char>>());
+        let mut data: Vec<Vec<GridCell>> = vec![vec![]];
+        // let mut data: Vec<Vec<GridCell>> = vec![vec![GridCell { val: '.', pos: (0,0) }; 140]; 140];
+        for (i, line) in lines.enumerate() {
+            data.push(vec![]);
+            for (j, char) in line.chars().enumerate() {
+                dbg!(&char);
+                // todo: use push to expand the vecs
+                data[i].push(GridCell {
+                    pos: (i, j),
+                    val: char,
+                });
+            }
         }
-        dbg!(data.len());
+        dbg!(&data[0][3]);
         Grid {
             data: vec![],
             col_cursor: 0,
@@ -94,11 +109,17 @@ impl Grid {
         vec![]
     }
     
-    fn up(&self, pos: Position) -> &GridCell {
-        dbg!(&self.data);
-        todo!("add array boundary checks");
-        let what = &self.data[pos.0][pos.1 - 1];
-        what
+    fn up(&self, pos: Position) -> Option<&GridCell> {
+        // todo!("add array boundary checks");
+        if pos.1 > self.data[0].len() {
+            None
+        } else {
+            let cell = &self.data
+                .get(pos.0)
+                .and_then(|row| row.get(pos.1 - 1));
+            dbg!(&cell);
+            *cell
+        }
     }
     
     fn down(&self, pos: Position) -> &GridCell {
@@ -159,6 +180,26 @@ fn part1<T>() -> Result<()> {
     // check for adjacency
     for symbol_cell in symbol_cells {
         grid.up(symbol_cell.pos);
+        grid.down(symbol_cell.pos);
+        grid.left(symbol_cell.pos);
+        grid.right(symbol_cell.pos);
+        
+        // todo: make these chainable
+        // let upleft = grid.up(symbol_cell.pos)
+        //     .left();
+        
+        // dbg!(upleft);
+        
+        // let upright = grid
+        //     .up(symbol_cell.pos)
+        //     .and_then()
+        //     .right();
+        
+        // grid.down(symbol_cell.pos)
+        //     .left();
+        
+        // grid.down(symbol_cell.pos)
+        //     .right()
     }
     
     // find the rest of the part number
