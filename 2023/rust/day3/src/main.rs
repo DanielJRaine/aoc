@@ -76,7 +76,7 @@ fn read_input() -> String {
 // row, column
 type Position = (usize, usize);
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Grid {
     data: Vec<Vec<GridCell>>,
     col_cursor: usize,
@@ -91,7 +91,6 @@ impl Grid {
         for (i, line) in lines.enumerate() {
             data.push(vec![]);
             for (j, char) in line.chars().enumerate() {
-                dbg!(&char);
                 // todo: use push to expand the vecs
                 data[i].push(GridCell {
                     pos: (i, j),
@@ -116,9 +115,8 @@ impl Grid {
             None
         } else {
             let cell = &self.data
-                .get(pos.0)
-                .and_then(|row| row.get(pos.1 - 1));
-            dbg!(&cell);
+                .get(pos.0 - 1)
+                .and_then(|row| row.get(pos.1));
             *cell
         }
     }
@@ -135,21 +133,34 @@ impl Grid {
         &self.data[pos.0 + 1][pos.1]
     }
     
-    fn expand_part_number(&self, pos: Position) -> &'static str {
+    fn expand_part_number(&self, pos: &Position) -> String {
         // move left until "."
         
-        let right = &self.data[pos.0].iter().skip().take_while(|cell| cell.val.is_numeric());
-        let left = &self.data[pos.0].iter().rev().skip().take_while(|cell| cell.val.is_numeric());
+        let right = &self.data[pos.0]
+            .iter()
+            .skip(pos.1)
+            .by_ref()
+            .take_while(|cell| cell.val.is_numeric())
+            .cloned()
+            .collect::<Vec<GridCell>>();
+        
+        let mut part_number = String::new();
+        for cell in right.iter() {
+            part_number.push(cell.val)
+        }
+        
+        part_number
+        // let mut left: &_ = &self.data[pos.0].iter().rev().skip(pos.1+1).take_while(|cell| cell.val.is_numeric()).collect();
+        
+        
         //  center?
-        dbg!();
         // move right until "."
         
         // concat
-        todo!()
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct GridCell {
     pos: Position,
     val: char,
@@ -170,7 +181,6 @@ fn scan_for_symbols(line: &str, row_cursor: usize) -> Vec<GridCell> {
         }
     }
     
-    dbg!(&grid_cells);
     grid_cells
 }
 
@@ -194,9 +204,13 @@ fn part1<T>() -> Result<()> {
     // check for adjacency
     for symbol_cell in symbol_cells {
         // check for adjacent numeric chars
-        grid.up(symbol_cell.pos)
-            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric())
-            .then(|| symbol_cell);
+        
+        let up_cell: &GridCell;
+        if grid.up(symbol_cell.pos)
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            up_cell = grid.up(symbol_cell.pos).unwrap();
+            dbg!(up_cell);
+        }
         
         // grid.down(symbol_cell.pos);
         // grid.left(symbol_cell.pos);
@@ -253,7 +267,8 @@ mod tests {
         let right: Vec<&char> = chars.iter().skip(3).take_while(|char| char.is_numeric()).collect();
         assert_eq!(vec![&'3', &'4'], right);
         
-        let left: Vec<&char> = chars.iter().rev().skip(4).take_while(|char| char.is_numeric()).collect();
-        assert_eq!(vec![&'2', &'1'], left)
+        let mut left: Vec<&char> = chars.iter().rev().skip(3+1).take_while(|char| char.is_numeric()).collect();
+        left.reverse();
+        assert_eq!(vec![&'1', &'2'], left)
     }
 }
