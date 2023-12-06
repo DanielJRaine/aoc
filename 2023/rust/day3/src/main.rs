@@ -97,9 +97,8 @@ impl Grid {
                 });
             }
         }
-        dbg!(&data[0][3]);
         Grid {
-            data: vec![],
+            data,
             col_cursor: 0,
             row_cursor: 0,
         }
