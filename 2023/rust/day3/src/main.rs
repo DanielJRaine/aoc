@@ -159,8 +159,6 @@ impl Grid {
     }
     
     fn expand_part_number(&self, pos: &Position) -> String {
-        // move left until "."
-        
         let right = &self.data[pos.0]
             .iter()
             .skip(pos.1)
@@ -213,7 +211,7 @@ fn part1<T>() -> Result<()> {
     // build up a matrix? assign coordinates?
     let input: String = aoc::read_input();
     let grid = Grid::new(&input);
-    let mut part_numbers: Vec<&str> = vec![];
+    let mut part_numbers: Vec<String> = vec![];
     
     let mut acc = 0;
     let mut symbol_vec = vec![];
@@ -235,25 +233,25 @@ fn part1<T>() -> Result<()> {
         if grid.up(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             up_cell = grid.up(symbol_cell.pos).unwrap();
-            part_numbers.push(&grid.expand_part_number(&up_cell.pos));
+            part_numbers.push(grid.expand_part_number(&up_cell.pos));
         }
         
         if grid.down(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             down_cell = grid.down(symbol_cell.pos).unwrap();
-            part_numbers.push(&grid.expand_part_number(&down_cell.pos));
+            part_numbers.push(grid.expand_part_number(&down_cell.pos));
         }
         
         if grid.left(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             left_cell = grid.left(symbol_cell.pos).unwrap();
-            part_numbers.push(&grid.expand_part_number(&left_cell.pos));
+            part_numbers.push(grid.expand_part_number(&left_cell.pos));
         }
         
         if grid.right(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             right_cell = grid.right(symbol_cell.pos).unwrap();
-            part_numbers.push(&grid.expand_part_number(&right_cell.pos));
+            part_numbers.push(grid.expand_part_number(&right_cell.pos));
         }
         
         // todo: make these chainable
@@ -263,7 +261,7 @@ fn part1<T>() -> Result<()> {
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             upleft = grid.up(symbol_cell.pos)
                 .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos));
-            part_numbers.push(&grid.expand_part_number(&upleft.unwrap().pos));
+            part_numbers.push(grid.expand_part_number(&upleft.unwrap().pos));
         }
         
         if grid.up(symbol_cell.pos)
@@ -271,7 +269,7 @@ fn part1<T>() -> Result<()> {
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             upright = grid.up(symbol_cell.pos)
                 .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos));
-            part_numbers.push(&grid.expand_part_number(&upright.unwrap().pos));
+            part_numbers.push(grid.expand_part_number(&upright.unwrap().pos));
         }
         
         if grid.down(symbol_cell.pos)
@@ -279,7 +277,7 @@ fn part1<T>() -> Result<()> {
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             downleft = grid.down(symbol_cell.pos)
                 .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos));
-            part_numbers.push(&grid.expand_part_number(&downleft.unwrap().pos));
+            part_numbers.push(grid.expand_part_number(&downleft.unwrap().pos));
         }
         
         if grid.down(symbol_cell.pos)
@@ -287,12 +285,12 @@ fn part1<T>() -> Result<()> {
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             downright = grid.down(symbol_cell.pos)
                 .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos));
-            part_numbers.push(&grid.expand_part_number(&downright.unwrap().pos));
+            part_numbers.push(grid.expand_part_number(&downright.unwrap().pos));
         }
     }
     
-    // find the rest of the part number
     // remove duplicate part numbers
+    dbg!(part_numbers);
     // add part numbers
     
     // println!("{acc}");
