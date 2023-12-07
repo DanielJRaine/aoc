@@ -234,43 +234,52 @@ fn part1<T>() -> Result<()> {
         if grid.up(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             up_cell = grid.up(symbol_cell.pos).unwrap();
-            dbg!(up_cell);
         }
         
         if grid.down(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             down_cell = grid.down(symbol_cell.pos).unwrap();
-            dbg!(down_cell);
         }
         
         if grid.left(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             left_cell = grid.left(symbol_cell.pos).unwrap();
-            dbg!(left_cell);
         }
         
         if grid.right(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             right_cell = grid.right(symbol_cell.pos).unwrap();
-            dbg!(right_cell);
         }
         
         // todo: make these chainable
-        // let upleft = grid.up(symbol_cell.pos)
-        //     .left();
+        let (upleft, upright, downleft, downright): (Option<&GridCell>, Option<&GridCell>, Option<&GridCell>, Option<&GridCell>);
+        if grid.up(symbol_cell.pos)
+            .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos))
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            upleft = grid.up(symbol_cell.pos)
+                .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos));
+        }
         
-        // dbg!(upleft);
+        if grid.up(symbol_cell.pos)
+            .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos))
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            upright = grid.up(symbol_cell.pos)
+                .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos));
+        }
         
-        // let upright = grid
-        //     .up(symbol_cell.pos)
-        //     .and_then()
-        //     .right();
+        if grid.down(symbol_cell.pos)
+            .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos))
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            downleft = grid.down(symbol_cell.pos)
+                .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos));
+        }
         
-        // grid.down(symbol_cell.pos)
-        //     .left();
-        
-        // grid.down(symbol_cell.pos)
-        //     .right()
+        if grid.down(symbol_cell.pos)
+            .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos))
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            downright = grid.down(symbol_cell.pos)
+                .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos));
+        }
     }
     
     // find the rest of the part number
