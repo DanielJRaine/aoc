@@ -158,7 +158,8 @@ impl Grid {
         }
     }
     
-    fn expand_part_number(&self, pos: &Position) -> String {
+    fn expand_part_number(&self, pos: &Position) -> (Position, String) {
+        let mut part_number_pos= pos.clone();
         let right = &self.data[pos.0]
             .iter()
             .skip(pos.1)
@@ -172,7 +173,12 @@ impl Grid {
             .rev()
             .skip(&self.data[pos.0].len() - pos.1)
             .by_ref()
-            .take_while(|cell| cell.val.is_numeric())
+            .take_while(|cell| {
+                if cell.val.is_numeric() {
+                    part_number_pos = cell.pos.clone();
+                    true
+                } else { false }
+            })
             .cloned()
             .collect::<Vec<GridCell>>();
         
@@ -185,14 +191,7 @@ impl Grid {
             part_number.push(cell.val)
         }
         
-        part_number
-        // let mut left: &_ = &self.data[pos.0].iter().rev().skip(pos.1+1).take_while(|cell| cell.val.is_numeric()).collect();
-        
-        
-        //  center?
-        // move right until "."
-        
-        // concat
+        (part_number_pos, part_number)
     }
 }
 
@@ -224,7 +223,7 @@ fn part1<T>() -> Result<()> {
     // build up a matrix? assign coordinates?
     let input: String = aoc::read_input();
     let grid = Grid::new(&input);
-    let mut part_numbers: Vec<String> = vec![];
+    let mut part_numbers: Vec<(Position, String)> = vec![];
     
     let mut acc = 0;
     let mut symbol_vec = vec![];
@@ -302,17 +301,22 @@ fn part1<T>() -> Result<()> {
         }
     }
     
-    // remove duplicate part numbers
-    part_numbers.sort();
-    part_numbers.dedup();
-    
     // add part numbers
-    let acc: Vec<i32> = part_numbers
+    let acc: Vec<(Position, i32)> = part_numbers
         .iter()
-        .map(|pn| pn.parse::<i32>().unwrap())
+        .map(|(pos, pn)| (*pos, pn.parse::<i32>().unwrap()))
         .collect();
     
-    let sum: i32 = acc.iter().sum();
+    let mut map = HashMap::new();
+    for (pos, part_num) in acc {
+        map.insert(pos, part_num);
+    }
+    
+    let sum = map.iter()
+        .map(|(pos, val)| *val)
+        .reduce(|sum, val| sum + val)
+        .unwrap();
+    
     println!("{sum}");
     Ok(())
 }
