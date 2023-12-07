@@ -167,7 +167,20 @@ impl Grid {
             .cloned()
             .collect::<Vec<GridCell>>();
         
+        let left = &self.data[pos.0]
+            .iter()
+            .rev()
+            .skip(&self.data[pos.0].len() - pos.1)
+            .by_ref()
+            .take_while(|cell| cell.val.is_numeric())
+            .cloned()
+            .collect::<Vec<GridCell>>();
+        
         let mut part_number = String::new();
+        for cell in left.iter().rev() {
+            part_number.push(cell.val);
+        }
+        
         for cell in right.iter() {
             part_number.push(cell.val)
         }
@@ -290,10 +303,17 @@ fn part1<T>() -> Result<()> {
     }
     
     // remove duplicate part numbers
-    dbg!(part_numbers);
-    // add part numbers
+    part_numbers.sort();
+    part_numbers.dedup();
     
-    // println!("{acc}");
+    // add part numbers
+    let acc: Vec<i32> = part_numbers
+        .iter()
+        .map(|pn| pn.parse::<i32>().unwrap())
+        .collect();
+    
+    let sum: i32 = acc.iter().sum();
+    println!("{sum}");
     Ok(())
 }
 
