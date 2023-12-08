@@ -6,11 +6,8 @@
 
 use std::{env};
 use std::collections::HashMap;
-use std::str::FromStr;
-use std::fs::read_to_string;
 use std::iter::Iterator;
 use eyre::{bail, eyre};
-use jane_eyre::owo_colors::OwoColorize;
 use jane_eyre::Result;
 use regex::{Regex};
 
@@ -28,14 +25,6 @@ const SYMBOLS: [char; 10] = [
 '&',
 '-',
 ];
-
-const SYMBOL_STR: &str = "*/%@+=$#&-";
-
-const UNICODE_NULL: char = '\0';
-const NULL_GRIDCELL: GridCell = GridCell {
-    pos: (0,0),
-    val: UNICODE_NULL,
-};
 
 use lazy_static::lazy_static;
 lazy_static! {
@@ -69,23 +58,17 @@ fn main() -> Result<()> {
     }
 }
 
-fn read_input() -> String {
-    read_to_string("input.txt").expect("Can't read file")
-}
-
 // row, column
 type Position = (usize, usize);
 
 #[derive(Debug, Clone)]
 struct Grid {
     data: Vec<Vec<GridCell>>,
-    col_cursor: usize,
-    row_cursor: usize,
 }
 
 impl Grid {
     fn new (input: &str) -> Grid {
-        let mut lines = input.lines();
+        let lines = input.lines();
         let mut data: Vec<Vec<GridCell>> = vec![vec![]];
         // let mut data: Vec<Vec<GridCell>> = vec![vec![GridCell { val: '.', pos: (0,0) }; 140]; 140];
         for (i, line) in lines.enumerate() {
@@ -100,13 +83,7 @@ impl Grid {
         }
         Grid {
             data,
-            col_cursor: 0,
-            row_cursor: 0,
         }
-    }
-    
-    fn find_adjacent_numbers(pos: Position) -> Vec<GridCell> {
-        vec![]
     }
     
     fn up(&self, pos: Position) -> Option<&GridCell> {
@@ -204,15 +181,28 @@ struct GridCell {
 fn scan_for_symbols(line: &str, row_cursor: usize) -> Vec<GridCell> {
     // Compile a set matching any of our patterns.
     let mut grid_cells: Vec<GridCell> = vec![];
-    let mut map: HashMap<char, Vec<usize>> = HashMap::new();
     for (column_cursor, c) in line.chars().enumerate() {
         if SYMBOLS.contains(&c) {
+            grid_cells.push(GridCell {
+                pos: (row_cursor, column_cursor),
+                val: c,
+            });
+        }
+    }
+    
+    grid_cells
+}
+
+fn scan_for_symbol(line: &str, symbol: char, row_cursor: usize) -> Vec<GridCell> {
+    // Compile a set matching any of our patterns.
+    let mut grid_cells: Vec<GridCell> = vec![];
+    for (column_cursor, c) in line.chars().enumerate() {
+        if symbol.eq(&c) {
             // translate this to positions (x, y) (, i)
             grid_cells.push(GridCell {
                 pos: (row_cursor, column_cursor),
                 val: c,
             });
-            // map.entry(c).or_insert(Vec::new()).push(i);
         }
     }
     
@@ -224,14 +214,11 @@ fn part1<T>() -> Result<()> {
     let input: String = aoc::read_input();
     let grid = Grid::new(&input);
     let mut part_numbers: Vec<(Position, String)> = vec![];
-    
-    let mut acc = 0;
     let mut symbol_vec = vec![];
     
     let mut i = 0usize;
     for line in input.lines() {
          symbol_vec.push(scan_for_symbols(line, i));
-        // acc += ?
         i+=1;
     }
     
@@ -313,7 +300,7 @@ fn part1<T>() -> Result<()> {
     }
     
     let sum = map.iter()
-        .map(|(pos, val)| *val)
+        .map(|(_, val)| *val)
         .reduce(|sum, val| sum + val)
         .unwrap();
     
@@ -322,16 +309,104 @@ fn part1<T>() -> Result<()> {
 }
 
 fn part2() -> Result<()> {
-    // fewest number of cubes of each color that could have been in the bag
-    // to make the game possible?
+    // build up a matrix? assign coordinates?
     let input: String = aoc::read_input();
-    let mut acc = 0;
+    let grid = Grid::new(&input);
+    let mut part_numbers: Vec<(Position, String)> = vec![];
     
+    let mut symbol_vec = vec![];
+    
+    let mut i = 0usize;
     for line in input.lines() {
+        symbol_vec.push(scan_for_symbols(line, i));
         // acc += ?
+        i+=1;
     }
     
-    println!("{acc}");
+    let symbol_cells: Vec<&GridCell> = symbol_vec.iter().flatten().collect();
+    
+    // check for adjacency
+    for symbol_cell in symbol_cells {
+        // check for adjacency > 1
+        let mut adjacency: u32 = 0;
+        
+        let (up_cell, down_cell, right_cell, left_cell);
+        if grid.up(symbol_cell.pos)
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            up_cell = grid.up(symbol_cell.pos).unwrap();
+            part_numbers.push(grid.expand_part_number(&up_cell.pos));
+        }
+        
+        if grid.down(symbol_cell.pos)
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            down_cell = grid.down(symbol_cell.pos).unwrap();
+            part_numbers.push(grid.expand_part_number(&down_cell.pos));
+        }
+        
+        if grid.left(symbol_cell.pos)
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            left_cell = grid.left(symbol_cell.pos).unwrap();
+            part_numbers.push(grid.expand_part_number(&left_cell.pos));
+        }
+        
+        if grid.right(symbol_cell.pos)
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            right_cell = grid.right(symbol_cell.pos).unwrap();
+            part_numbers.push(grid.expand_part_number(&right_cell.pos));
+        }
+        
+        // todo: make these chainable
+        let (upleft, upright, downleft, downright): (Option<&GridCell>, Option<&GridCell>, Option<&GridCell>, Option<&GridCell>);
+        if grid.up(symbol_cell.pos)
+            .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos))
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            upleft = grid.up(symbol_cell.pos)
+                .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos));
+            part_numbers.push(grid.expand_part_number(&upleft.unwrap().pos));
+        }
+        
+        if grid.up(symbol_cell.pos)
+            .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos))
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            upright = grid.up(symbol_cell.pos)
+                .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos));
+            part_numbers.push(grid.expand_part_number(&upright.unwrap().pos));
+        }
+        
+        if grid.down(symbol_cell.pos)
+            .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos))
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            downleft = grid.down(symbol_cell.pos)
+                .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos));
+            part_numbers.push(grid.expand_part_number(&downleft.unwrap().pos));
+        }
+        
+        if grid.down(symbol_cell.pos)
+            .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos))
+            .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
+            downright = grid.down(symbol_cell.pos)
+                .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos));
+            part_numbers.push(grid.expand_part_number(&downright.unwrap().pos));
+        }
+    }
+    
+    // add part numbers
+    let acc: Vec<(Position, i32)> = part_numbers
+        .iter()
+        .map(|(pos, pn)| (*pos, pn.parse::<i32>().unwrap()))
+        .collect();
+    
+    let mut map = HashMap::new();
+    for (pos, part_num) in acc {
+        map.insert(pos, part_num);
+    }
+    
+    let sum = map.iter()
+        .map(|(_, val)| *val)
+        .reduce(|sum, val| sum + val)
+        .unwrap();
+    
+    println!("{sum}");
     Ok(())
 }
 
