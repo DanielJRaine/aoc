@@ -90,7 +90,7 @@ fn part2() -> Result<()> {
     let input: String = aoc::read_input();
     let mut cards: Vec<Card> = vec![];
     let mut won_cards: Vec<Card> = vec![];
-    let mut acc: u32 = 0;
+    let mut acc: usize = 0;
     
     for (id, line) in input.lines().enumerate() {
         // take_until: ? while is_numeric
@@ -122,6 +122,19 @@ fn part2() -> Result<()> {
         })
     }
     
+    
+    for (i, card) in cards.iter().enumerate() {
+        
+        println!("Card: {}", i+1);
+        if (card.card_score == 0) { break }
+        let next_cards = &cards[i+1..=i+card.card_score];
+        
+        for copied_card in next_cards {
+            println!("\t id: {}", copied_card.id);
+            acc += 1;
+        }
+    }
+    
     // We don't care about scores. We only care about the number of winning Cards yielded per Card
     // Make a hash table of how many next cards each card yields
     // collect_winning_cards(cards, &mut won_cards);
@@ -129,7 +142,7 @@ fn part2() -> Result<()> {
     // let sum = won_cards.len();
     // println!("{sum}");
     // 10484 is too low
-    dbg!(cards);
+    // dbg!(cards);
     Ok(())
 }
 
