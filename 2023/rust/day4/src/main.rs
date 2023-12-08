@@ -123,21 +123,10 @@ fn part2() -> Result<()> {
     }
     
     let mut copies: Vec<Card> = vec![];
-    sum_number_of_copied_cards(cards, copies);
+    let sum = sum_number_of_copied_cards(cards, copies);
     
-    // for (i, card) in cards.iter().enumerate() {
-    //     println!("Card: {}", i+1);
-    //     if (card.card_score == 0) { break }
-    //     let next_cards = &cards[i+1..=i+card.card_score];
-    //
-    //     for copied_card in next_cards {
-    //         // println!("\t id: {}", copied_card.id);
-    //         println!("\t card_score: {}", copied_card.card_score);
-    //         acc += 1;
-    //     }
-    // }
+    println!("{sum}");
     
-    println!("{acc}");
     // We don't care about scores. We only care about the number of winning Cards yielded per Card
     // Make a hash table of how many next cards each card yields
     // collect_winning_cards(cards, &mut won_cards);
@@ -149,7 +138,7 @@ fn part2() -> Result<()> {
     Ok(())
 }
 
-fn sum_number_of_copied_cards(all_cards: Vec<Card>, copies: Vec<Card>) {
+fn sum_number_of_copied_cards(all_cards: Vec<Card>, mut copies: Vec<Card>) -> usize {
     for (i, card) in all_cards.iter().enumerate() {
         println!("Card: {}", i+1);
         if (card.card_score == 0) { break }
@@ -158,8 +147,11 @@ fn sum_number_of_copied_cards(all_cards: Vec<Card>, copies: Vec<Card>) {
         for copied_card in next_cards {
             // println!("\t id: {}", copied_card.id);
             println!("\t card_score: {}", copied_card.card_score);
+            copies.push(copied_card.clone())
         }
     }
+    
+    copies.len()
 }
 
 
