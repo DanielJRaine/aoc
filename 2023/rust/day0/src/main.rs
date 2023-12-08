@@ -1,16 +1,10 @@
-// Secret number of cubes of each color
-// Goal: figure out info about the number of cubes
-// which games would have been possible
-// if the bag contained only 12 red cubes, 13 green cubes, and 14 blue cubes
-// add up the ids of these games
-
 use std::{env};
 use std::collections::HashMap;
 use std::fs::read_to_string;
 use eyre::{bail, eyre};
-use jane_eyre::owo_colors::OwoColorize;
 use jane_eyre::Result;
 use regex::{Regex};
+use aoc;
 
 fn main() -> Result<()> {
     jane_eyre::install()?;
@@ -28,12 +22,8 @@ fn main() -> Result<()> {
     }
 }
 
-fn read_input() -> String {
-    read_to_string("input.txt").expect("Can't read file")
-}
-
 fn part1() -> Result<()> {
-    let input: String = read_input();
+    let input: String = aoc::read_input();
     for line in input.lines() {
     
     }
@@ -44,10 +34,6 @@ fn part1() -> Result<()> {
 
 fn part2() -> Result<()> {
     todo!();
-    let input: String = read_input();
-    
-    for line in input.lines() {
-    }
     
     Ok(())
 }

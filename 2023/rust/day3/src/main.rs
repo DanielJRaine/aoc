@@ -311,6 +311,7 @@ fn part1<T>() -> Result<()> {
 fn part2() -> Result<()> {
     // build up a matrix? assign coordinates?
     let input: String = aoc::read_input();
+    let mut acc = 0;
     let grid = Grid::new(&input);
     let mut part_numbers: Vec<(Position, String)> = vec![];
     
@@ -319,7 +320,6 @@ fn part2() -> Result<()> {
     let mut i = 0usize;
     for line in input.lines() {
         symbol_vec.push(scan_for_symbol(line, '*', i));
-        // acc += ?
         i+=1;
     }
     
@@ -410,29 +410,16 @@ fn part2() -> Result<()> {
         // todo: count adjacency
         if adjacent_part_numbers.len() == 2 {
             // multiply two adjacent numbers and add to acc
-            dbg!()
+            let gear_ratio: u32 = adjacent_part_numbers
+                .iter()
+                .map(|(_, g)| g.parse::<u32>().unwrap())
+                .reduce(|g1, g2| g1 * g2)
+                .unwrap();
+            acc += gear_ratio;
         }
-        
     }
     
-    
-    // add part numbers
-    let acc: Vec<(Position, i32)> = part_numbers
-        .iter()
-        .map(|(pos, pn)| (*pos, pn.parse::<i32>().unwrap()))
-        .collect();
-    
-    let mut map = HashMap::new();
-    for (pos, part_num) in acc {
-        map.insert(pos, part_num);
-    }
-    
-    let sum = map.iter()
-        .map(|(_, val)| *val)
-        .reduce(|sum, val| sum + val)
-        .unwrap();
-    
-    println!("{sum}");
+    println!("{acc}");
     Ok(())
 }
 

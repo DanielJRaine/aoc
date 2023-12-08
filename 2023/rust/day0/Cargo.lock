@@ -27,6 +27,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc"
+version = "0.1.0"
+
+[[package]]
 name = "backtrace"
 version = "0.3.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -114,9 +118,11 @@ dependencies = [
 name = "day0"
 version = "0.1.0"
 dependencies = [
+ "aoc",
  "color-eyre 0.6.2",
  "eyre",
  "jane-eyre",
+ "lazy_static",
  "regex",
 ]
 
