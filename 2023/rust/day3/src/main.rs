@@ -318,7 +318,7 @@ fn part2() -> Result<()> {
     
     let mut i = 0usize;
     for line in input.lines() {
-        symbol_vec.push(scan_for_symbols(line, i));
+        symbol_vec.push(scan_for_symbol(line, '*', i));
         // acc += ?
         i+=1;
     }
@@ -327,32 +327,41 @@ fn part2() -> Result<()> {
     
     // check for adjacency
     for symbol_cell in symbol_cells {
-        // check for adjacency > 1
+        // check for adjacency == 2
         let mut adjacency: u32 = 0;
+        let mut adjacent_part_numbers: HashMap<Position, String> = HashMap::new();
         
         let (up_cell, down_cell, right_cell, left_cell);
         if grid.up(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             up_cell = grid.up(symbol_cell.pos).unwrap();
-            part_numbers.push(grid.expand_part_number(&up_cell.pos));
+            let (pos, part_number) = grid.expand_part_number(&up_cell.pos);
+            
+            adjacent_part_numbers.insert(pos, part_number);
         }
         
         if grid.down(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             down_cell = grid.down(symbol_cell.pos).unwrap();
-            part_numbers.push(grid.expand_part_number(&down_cell.pos));
+            let (pos, part_number) = grid.expand_part_number(&down_cell.pos);
+            
+            adjacent_part_numbers.insert(pos, part_number);
         }
         
         if grid.left(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             left_cell = grid.left(symbol_cell.pos).unwrap();
-            part_numbers.push(grid.expand_part_number(&left_cell.pos));
+            let (pos, part_number) = grid.expand_part_number(&left_cell.pos);
+            
+            adjacent_part_numbers.insert(pos, part_number);
         }
         
         if grid.right(symbol_cell.pos)
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             right_cell = grid.right(symbol_cell.pos).unwrap();
-            part_numbers.push(grid.expand_part_number(&right_cell.pos));
+            let (pos, part_number) = grid.expand_part_number(&right_cell.pos);
+            
+            adjacent_part_numbers.insert(pos, part_number);
         }
         
         // todo: make these chainable
@@ -362,7 +371,10 @@ fn part2() -> Result<()> {
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             upleft = grid.up(symbol_cell.pos)
                 .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos));
-            part_numbers.push(grid.expand_part_number(&upleft.unwrap().pos));
+            
+            let (pos, part_number) = grid.expand_part_number(&upleft.unwrap().pos);
+            
+            adjacent_part_numbers.insert(pos, part_number);
         }
         
         if grid.up(symbol_cell.pos)
@@ -370,7 +382,9 @@ fn part2() -> Result<()> {
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             upright = grid.up(symbol_cell.pos)
                 .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos));
-            part_numbers.push(grid.expand_part_number(&upright.unwrap().pos));
+            let (pos, part_number) = grid.expand_part_number(&upright.unwrap().pos);
+            
+            adjacent_part_numbers.insert(pos, part_number);
         }
         
         if grid.down(symbol_cell.pos)
@@ -378,7 +392,9 @@ fn part2() -> Result<()> {
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             downleft = grid.down(symbol_cell.pos)
                 .and_then(|grid_cell: &GridCell| grid.left(grid_cell.pos));
-            part_numbers.push(grid.expand_part_number(&downleft.unwrap().pos));
+            let (pos, part_number) = grid.expand_part_number(&downleft.unwrap().pos);
+            
+            adjacent_part_numbers.insert(pos, part_number);
         }
         
         if grid.down(symbol_cell.pos)
@@ -386,9 +402,19 @@ fn part2() -> Result<()> {
             .is_some_and(|symbol_cell| symbol_cell.val.is_numeric()) {
             downright = grid.down(symbol_cell.pos)
                 .and_then(|grid_cell: &GridCell| grid.right(grid_cell.pos));
-            part_numbers.push(grid.expand_part_number(&downright.unwrap().pos));
+            let (pos, part_number) = grid.expand_part_number(&downright.unwrap().pos);
+            
+            adjacent_part_numbers.insert(pos, part_number);
         }
+        
+        // todo: count adjacency
+        if adjacent_part_numbers.len() == 2 {
+            // multiply two adjacent numbers and add to acc
+            dbg!()
+        }
+        
     }
+    
     
     // add part numbers
     let acc: Vec<(Position, i32)> = part_numbers
