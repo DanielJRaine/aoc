@@ -88,7 +88,7 @@ struct Card {
 fn part2() -> Result<()> {
     let input: String = aoc::read_input();
     let mut cards: Vec<Card> = vec![];
-    let mut won_cards: Vec<&Card> = vec![];
+    let mut won_cards: Vec<Card> = vec![];
     let mut acc: u32 = 0;
     
     for (id, line) in input.lines().enumerate() {
@@ -118,22 +118,33 @@ fn part2() -> Result<()> {
         })
     }
     
-    for card in cards.clone() {
-        collect_winning_cards(&card, &cards, &mut won_cards);
-    }
+    collect_winning_cards(cards, &mut won_cards);
     
-    // println!("sum: {acc}");
+    dbg!(&won_cards);
+    
+    let sum = won_cards.len();
+    println!("sum: {sum}");
     Ok(())
 }
 
-fn collect_winning_cards<'a>(card: &Card, cards: &'a Vec<Card>, won_cards: &mut Vec<&'a Card>) -> Vec<Card> {
-    let card_score = check_for_winning_nums(&card.winning_nums, &card.nums_you_have);
-    for c in cards.iter().skip(card.id).take(card_score).collect::<Vec<&Card>>() {
+fn collect_winning_cards<'a>(cards: Vec<Card>, won_cards: &mut Vec<Card>) {
+    for card in &cards {
+        let card_score = check_for_winning_nums(&card.winning_nums, &card.nums_you_have);
         
-        won_cards.push(c);
+        // this should start on the *next* card
+        for c in cards.iter().skip(card.id + 1).take(card_score).collect::<Vec<&Card>>() {
+            // if c.id == cards.len() { break }
+            won_cards.push(c.clone());
+            
+            // if card.id == cards.len() { return }
+            // collect_winning_cards(card, cards, won_cards);
+        }
     }
     
-    vec![]
+    // now, won_cards is populated by the nth round of winning cards. Do it again...
+    // todo: break condition?
+    // todo: make recursive
+    collect_winning_cards(won_cards.clone(), won_cards);
 }
 
 #[cfg(test)]
