@@ -67,7 +67,7 @@ fn part1() -> Result<()> {
 }
 
 fn check_for_winning_nums(winning_nums: &Vec<i32>, nums_you_have: &Vec<i32>) -> usize {
-    let mut score = 1;
+    let mut score = 0;
     
     for num in nums_you_have {
         if winning_nums.contains(&num) {
@@ -83,6 +83,7 @@ struct Card {
     id: usize,
     winning_nums: Vec<i32>,
     nums_you_have: Vec<i32>,
+    card_score: usize,
 }
 
 fn part2() -> Result<()> {
@@ -111,40 +112,50 @@ fn part2() -> Result<()> {
             .map(|n| n.parse::<i32>().unwrap())
             .collect();
         
+        let card_score = check_for_winning_nums(&winning_nums, &nums_you_have);
+        
         cards.push(Card {
-            id,
+            id: id + 1,
             winning_nums,
             nums_you_have,
+            card_score
         })
     }
     
-    collect_winning_cards(cards, &mut won_cards);
+    // We don't care about scores. We only care about the number of winning Cards yielded per Card
+    // Make a hash table of how many next cards each card yields
+    // collect_winning_cards(cards, &mut won_cards);
     
-    dbg!(&won_cards);
-    
-    let sum = won_cards.len();
-    println!("sum: {sum}");
+    // let sum = won_cards.len();
+    // println!("{sum}");
+    // 10484 is too low
+    dbg!(cards);
     Ok(())
 }
 
 fn collect_winning_cards<'a>(cards: Vec<Card>, won_cards: &mut Vec<Card>) {
-    for card in &cards {
+    let mut winning_card_copies = vec![];
+    
+    for card in cards.clone() {
+        
         let card_score = check_for_winning_nums(&card.winning_nums, &card.nums_you_have);
         
-        // this should start on the *next* card
-        for c in cards.iter().skip(card.id + 1).take(card_score).collect::<Vec<&Card>>() {
-            // if c.id == cards.len() { break }
-            won_cards.push(c.clone());
+        if card_score == 0 { break }
+        else {
+            winning_card_copies.append(&mut cards.clone()
+                .into_iter()
+                .skip(card.id)
+                .take(card_score)
+                .collect::<Vec<Card>>());
             
-            // if card.id == cards.len() { return }
-            // collect_winning_cards(card, cards, won_cards);
+            won_cards.append(&mut winning_card_copies.clone());
+            
+            collect_winning_cards(winning_card_copies.clone(), won_cards);
         }
     }
     
     // now, won_cards is populated by the nth round of winning cards. Do it again...
     // todo: break condition?
-    // todo: make recursive
-    collect_winning_cards(won_cards.clone(), won_cards);
 }
 
 #[cfg(test)]
@@ -154,5 +165,10 @@ mod tests {
     #[test]
     fn it_eq() {
         assert_eq!(1, 1)
+    }
+    
+    #[test]
+    fn it_finds_winning_numbers() {
+    assert_eq!(check_for_winning_nums(&vec![41,48,83,86,17,], &vec![83,86,6,31,17,9,48,53,]), 4)
     }
 }
