@@ -87,6 +87,20 @@ struct Card {
 	children: Vec<Rc<RefCell<Card>>>,
 }
 
+impl Card {
+	fn num_children(&self) -> usize {
+		self.children.len()
+	}
+	
+	fn total_children(&self) -> usize {
+		self.children.iter()
+			.fold(0, |acc, card| {
+				let child_card = card.borrow();
+				acc + 1 + child_card.total_children()
+			})
+	}
+}
+
 #[derive(Debug)]
 struct Deck {
 	cards: Vec<Rc<RefCell<Card>>>,
@@ -144,20 +158,23 @@ fn part2() -> Result<()> {
 	}
 	
 	// Final debug output to check the state of each card
-	for card_rc in deck.cards.iter().take(1) {
+	for card_rc in deck.cards.iter() {
 		println!(
-			"Card ID: {} \n Children: {:?}",
+			"id: {} \n\
+			num_of_children: {}\n\
+			",
 			card_rc.borrow().id,
-			card_rc.borrow().children
+			card_rc.borrow().num_children()
 		);
 	}
-	// for card in &deck.cards {
-		// dbg!(card);
-	// }
 	
 	// Count the depth of every tree's branches and sum them.
-	// println!("{acc}");
 	// 10484 is too low
+	let mut sum = 0;
+	for card in deck.cards {
+		sum += 1 + card.borrow().total_children()
+	}
+	println!("{sum}");
 	Ok(())
 }
 
