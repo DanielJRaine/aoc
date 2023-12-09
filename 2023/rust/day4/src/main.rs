@@ -2,6 +2,7 @@ use std::{env};
 use std::collections::HashMap;
 use std::fs::read_to_string;
 use std::ops::Deref;
+use std::rc::Rc;
 use eyre::{bail, eyre};
 use jane_eyre::Result;
 use regex::{Regex};
@@ -84,12 +85,21 @@ struct Card {
     winning_nums: Vec<i32>,
     nums_you_have: Vec<i32>,
     card_score: usize,
-    cloned_cards: Vec<Card>
+    parent: Option<Rc<Card>>,
+    children: Vec<Rc<Card>>,
+}
+
+#[derive(Debug)]
+struct Deck {
+    cards: Vec<Card>
 }
 
 fn part2() -> Result<()> {
     let input: String = aoc::read_input();
-    let mut cards: Vec<Card> = vec![];
+    let mut deck = Deck {
+        cards: vec![],
+    };
+    
     let mut won_cards: Vec<Card> = vec![];
     let mut acc: usize = 0;
     
@@ -112,20 +122,17 @@ fn part2() -> Result<()> {
         
         let card_score = check_for_winning_nums(&winning_nums, &nums_you_have);
         
-        todo!("store cloned cards directly on cards");
-        let cloned_cards = vec![];
-        
-        cards.push(Card {
+        deck.cards.push(Card {
             id: id + 1,
             winning_nums,
             nums_you_have,
             card_score,
-            cloned_cards
+            parent: None,
+            children: vec![],
         })
     }
     
-    dbg!(&cards);
-    dbg!(&cards.len());
+    dbg!(deck.cards);
     
     // We don't care about scores. We only care about the number of winning Cards yielded per Card
     // println!("{acc}");
