@@ -28,6 +28,20 @@ struct ResourceMap {
 	ranges: Vec<ResourceRange>
 }
 
+impl ResourceMap {
+	// checks source range, returns correct destination resource
+	fn to_destination(&self, resource: usize) -> usize {
+		for range in &self.ranges {
+			if let Some(destination) = range.to_destination(resource) {
+				return destination
+			};
+		}
+		
+		// if resource is not mapped, return the self-mapped value
+		resource
+	}
+}
+
 #[derive(Debug, PartialEq)]
 struct ResourceRange {
 	destination_range_start: usize,
@@ -36,16 +50,16 @@ struct ResourceRange {
 }
 
 impl ResourceRange {
-	fn to(&self, resource: usize) -> usize {
+	fn to_destination(&self, resource: usize) -> Option<usize> {
 		// checks source range, returns correct destination resource
 		if (self.source_range_start..self.source_range_start+self.range_length).contains(&resource) {
 			// calculate the offset from the range start
 			let offset = resource - self.source_range_start;
 			
 			// take the same offset and apply it to the destination range to get the returned resource
-			self.destination_range_start + offset
+			Some(self.destination_range_start + offset)
 		} else {
-			resource
+			None
 		}
 	}
 }
@@ -72,7 +86,7 @@ fn part1() -> Result<()> {
 	// split on ':'
 	
 	let seeds_input = "79 14 55 13";
-	// let seeds = [];
+	let seeds: Vec<usize> = seeds_input.split_ascii_whitespace().map(|s| s.parse().unwrap()).collect();
 	
 	let seed_to_soil_input = "50 98 2
 		52 50 48";
@@ -126,6 +140,14 @@ fn part1() -> Result<()> {
 	};
 	
 	// lowest location id that corresponds to any of the initial seeds
+	// we could solve this forwards...
+	for seed in seeds {
+		// find location
+		
+	}
+	
+	// ...or backwards
+	// let locations =
 	
 	Ok(())
 }
@@ -171,6 +193,27 @@ mod tests {
 	}
 	
 	#[test]
+	fn finds_self_mapped_destination() {
+		let res_range = ResourceRange {
+			destination_range_start: 50,
+			source_range_start: 98,
+			range_length: 2,
+		};
+		
+		let res_map = ResourceMap {
+			ranges: vec!(res_range)
+		};
+		
+		let source_resource = 1;
+		let destination_resource = 1;
+		// unmapped
+		assert_eq!(res_map.to_destination(source_resource), destination_resource);
+		
+		// mapped
+		assert_ne!(res_map.to_destination(99), 99);
+	}
+	
+	#[test]
 	fn finds_destination() {
 		let res_range = ResourceRange {
 			destination_range_start: 50,
@@ -180,6 +223,6 @@ mod tests {
 		
 		let destination_resource = 51;
 		let source_resource = 99;
-		assert_eq!(res_range.to(source_resource), destination_resource)
+		assert_eq!(res_range.to_destination(source_resource), Some(destination_resource))
 	}
 }
