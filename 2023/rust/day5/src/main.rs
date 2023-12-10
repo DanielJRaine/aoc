@@ -76,38 +76,54 @@ fn part1() -> Result<()> {
 	
 	let seed_to_soil_input = "50 98 2
 		52 50 48";
-	
 	let seed_to_soil_map = ResourceMap {
 		ranges: parse_ranges(seed_to_soil_input)
 	};
 	
-	
 	let soil_to_fertilizer_input = "0 15 37
 		37 52 2
 		39 0 15";
+	let soil_to_fertilizer_map = ResourceMap {
+		ranges: parse_ranges(soil_to_fertilizer_input)
+	};
 	
 	let fertilizer_to_water_input = "
 		49 53 8
 		0 11 42
 		42 0 7
 		57 7 4";
+	let fertilizer_to_water_map = ResourceMap {
+		ranges: parse_ranges(fertilizer_to_water_input)
+	};
 	
 	let water_to_light_input = "
 		88 18 7
 		18 25 70";
+	let water_to_light_map = ResourceMap {
+		ranges: parse_ranges(water_to_light_input)
+	};
 	
 	let light_to_temperature_input = "
 		45 77 23
 		81 45 19
 		68 64 13";
+	let light_to_temperature_map = ResourceMap {
+		ranges: parse_ranges(light_to_temperature_input)
+	};
 	
 	let temperature_to_humidity_input = "
 		0 69 1
 		1 0 69";
+	let temperature_to_humidity_map = ResourceMap {
+		ranges: parse_ranges(temperature_to_humidity_input)
+	};
 	
 	let humidity_to_location_input = "
 		60 56 37
 		56 93 4";
+	let humidity_to_location_map = ResourceMap {
+		ranges: parse_ranges(humidity_to_location_input)
+	};
 	
 	// lowest location id that corresponds to any of the initial seeds
 	
