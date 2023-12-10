@@ -25,12 +25,17 @@ fn main() -> Result<()> {
 
 #[derive(Debug)]
 struct ResourceMap {
+	ranges: Vec<ResourceRange>
+}
+
+#[derive(Debug)]
+struct ResourceRange {
 	source_range_start: usize,
 	destination_range_start: usize,
 	range_length: usize
 }
 
-impl ResourceMap {
+impl ResourceRange {
 	fn to(&self, resource: usize) -> usize {
 		// checks source range, returns correct destination resource
 		if (self.source_range_start..self.range_length).contains(&resource) {
@@ -95,6 +100,8 @@ fn part2() -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+	use super::*;
+	
 	#[test]
 	fn it_eq() {
 		assert_eq!(1, 1);
@@ -102,6 +109,10 @@ mod tests {
 	
 	#[test]
 	fn finds_destination() {
-	
+		let res_range = ResourceRange {
+			source_range_start: 50,
+			destination_range_start: 98,
+			range_length: 2,
+		};
 	}
 }
