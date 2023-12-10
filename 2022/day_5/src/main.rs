@@ -1,5 +1,3 @@
-#![feature(try_trait_v2_yeet)]
-
 use std::{env, fs, io};
 use std::env::{current_dir, set_current_dir};
 use std::fmt::Error;
