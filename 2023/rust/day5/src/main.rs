@@ -34,10 +34,10 @@ impl ResourceMap {
 	fn to(&self, resource: usize) -> usize {
 		// checks source range, returns correct destination resource
 		if (self.source_range_start..self.range_length).contains(&resource) {
-			// find the number in the source range.
 			// calculate the offset from the range start
+			let offset = resource - self.source_range_start;
 			// take the same offset and apply it to the destination range to get the returned resource
-			self.destination_range_start
+			self.destination_range_start + offset
 		} else {
 			resource
 		}
@@ -98,5 +98,10 @@ mod tests {
 	#[test]
 	fn it_eq() {
 		assert_eq!(1, 1);
+	}
+	
+	#[test]
+	fn finds_destination() {
+	
 	}
 }
