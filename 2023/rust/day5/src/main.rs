@@ -143,7 +143,15 @@ fn part1() -> Result<()> {
 	// we could solve this forwards...
 	for seed in seeds {
 		// find location
-		
+		let soil = seed_to_soil_map.to_destination(seed);
+		let fertilizer = soil_to_fertilizer_map.to_destination(soil);
+		let water = fertilizer_to_water_map.to_destination(fertilizer);
+		let light = water_to_light_map.to_destination(water);
+		let temp = light_to_temperature_map.to_destination(light);
+		let hum = temperature_to_humidity_map.to_destination(temp);
+		let loc = humidity_to_location_map.to_destination(hum);
+		println!("{loc}");
+		dbg!()
 	}
 	
 	// ...or backwards
