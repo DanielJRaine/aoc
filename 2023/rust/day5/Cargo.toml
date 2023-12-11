@@ -10,5 +10,6 @@ color-eyre = "0.6.2"
 eyre = "0.6.9"
 jane-eyre = "0.3.0"
 regex = "1.10.2"
-aoc = { path = ".." }
 lazy_static = { version = "1.4.0", features = [] }
+aoc = { path = ".." }
+rust-lapper = "1.1.0"

@@ -8,6 +8,9 @@ use aoc;
 use eyre::{bail, eyre};
 use jane_eyre::Result;
 use regex::Regex;
+use rust_lapper::{Interval, Lapper};
+// use rustc_index::interval::IntervalSet;
+
 
 fn main() -> Result<()> {
 	jane_eyre::install()?;
@@ -27,8 +30,8 @@ fn main() -> Result<()> {
 
 #[derive(Debug, PartialEq, Eq)]
 struct Resource {
-	range_start: u64,
-	range_end: u64,
+	range_start: u32,
+	range_end: u32,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -38,7 +41,7 @@ struct ResourceMap {
 
 impl ResourceMap {
 	// checks source range, returns correct destination resource
-	fn to_destination(&self, resource: u64) -> u64 {
+	fn to_destination(&self, resource: u32) -> u32 {
 		for range in &self.map_ranges {
 			if let Some(destination) = range.to_destination(resource) { return destination };
 		}
@@ -50,13 +53,13 @@ impl ResourceMap {
 
 #[derive(Debug, PartialEq, Eq)]
 struct ResourceMapRange {
-	destination_range_start: u64,
-	source_range_start: u64,
-	range_length: u64
+	destination_range_start: u32,
+	source_range_start: u32,
+	range_length: u32
 }
 
 impl ResourceMapRange {
-	fn to_destination(&self, resource: u64) -> Option<u64> {
+	fn to_destination(&self, resource: u32) -> Option<u32> {
 		// checks source range, returns correct destination resource
 		if (self.source_range_start..self.source_range_start+self.range_length).contains(&resource) {
 			// calculate the offset from the range start
@@ -74,7 +77,7 @@ fn parse_ranges(input: &str) -> Vec<ResourceMapRange> {
 	let mut ranges = vec![];
 	for line in input.trim().lines() {
 		let mut iter = line.split_ascii_whitespace()
-			.map(|num| num.parse::<u64>().unwrap());
+			.map(|num| num.parse::<u32>().unwrap());
 		ranges.push(ResourceMapRange {
 			destination_range_start: iter.next().to_owned().unwrap(),
 			source_range_start: iter.next().to_owned().unwrap(),
@@ -92,7 +95,7 @@ fn part1() -> Result<()> {
 	// split on ':'
 	
 	let seeds_input = "3640772818 104094365 1236480411 161072229 376099792 370219099 1590268366 273715765 3224333694 68979978 2070154278 189826014 3855332650 230434913 3033760782 82305885 837883389 177854788 2442602612 571881366";
-	let seeds: Vec<u64> = seeds_input.split_ascii_whitespace().map(|s| s.parse().unwrap()).collect();
+	let seeds: Vec<u32> = seeds_input.split_ascii_whitespace().map(|s| s.parse().unwrap()).collect();
 	
 	let seed_to_soil_input = "496269031 1203272644 52136246
 548405277 496269031 457095898
@@ -392,29 +395,23 @@ fn part2() -> Result<()> {
 		.split_ascii_whitespace().collect();
 	let seed_chunks = seed_strs.chunks(2);
 	
-	let seeds: Vec<Resource> = seed_chunks
+	let intervals: Vec<Interval<u32, u32>> = seed_chunks
 		.map(|ranges| {
 			if let [range_start, range_end] = ranges.as_slice() {
-				let range_start= range_start.parse::<u64>().unwrap();
-				let range_end= range_end.parse::<u64>().unwrap();
-				
-				return Resource {
-					range_start,
-					range_end
+				let start= range_start.parse::<u32>().unwrap();
+				let stop= range_end.parse::<u32>().unwrap();
+				Interval {
+					start,
+					stop, // FIXME: may want stop + 1 for inclusive
+					val: 0,
 				}
+			} else {
+				unreachable!();
 			}
-			
-			unreachable!("this branch should never execute!");
-			Resource {
-				range_start: 0,
-				range_end: 0,
-			}
-		
 		})
 		.collect();
 	
 	dbg!();
-	
 // 	let seed_to_soil_input = "496269031 1203272644 52136246
 // 548405277 496269031 457095898
 // 1005501175 953364929 249907715";
