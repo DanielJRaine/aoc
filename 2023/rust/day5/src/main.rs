@@ -397,9 +397,10 @@ fn part2() -> Result<()> {
 	
 	let intervals: Vec<Interval<u32, u32>> = seed_chunks
 		.map(|ranges| {
-			if let [range_start, range_end] = ranges.as_slice() {
+			if let [range_start, range_length] = ranges.as_slice() {
 				let start= range_start.parse::<u32>().unwrap();
-				let stop= range_end.parse::<u32>().unwrap();
+				let length= range_length.parse::<u32>().unwrap();
+				let stop = start + length;
 				Interval {
 					start,
 					stop, // FIXME: may want stop + 1 for inclusive
