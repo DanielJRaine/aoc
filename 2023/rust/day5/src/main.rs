@@ -9,7 +9,7 @@ use eyre::{bail, eyre};
 use jane_eyre::Result;
 use regex::Regex;
 use rust_lapper::{Interval, Lapper};
-// use rustc_index::interval::IntervalSet;
+use std::sync::{Arc, Mutex};
 
 use std::thread;
 use std::sync::mpsc;
@@ -90,6 +90,20 @@ fn parse_ranges(input: &str) -> Vec<ResourceMapRange> {
 	}
 	
 	ranges
+}
+
+fn parse_intervals(input: &str) -> Vec<Interval<u128, u128>> {
+	let mut ranges = vec![];
+	for line in input.trim().lines() {
+		let mut iter = line.split_ascii_whitespace()
+			.map(|num| num.parse::<u128>().unwrap());
+		ranges.push(ResourceMapRange {
+			destination_range_start: iter.next().to_owned().unwrap(),
+			source_range_start: iter.next().to_owned().unwrap(),
+			range_length: iter.next().to_owned().unwrap(),
+		});
+	}
+	todo!();
 }
 
 fn part1() -> Result<()> {
@@ -197,6 +211,8 @@ fn part2() -> Result<()> {
 			}
 		})
 		.collect();
+	
+	let lapper1 = Lapper::new(intervals);
 	
 	let seed_to_soil_input = "496269031 1203272644 52136246
 548405277 496269031 457095898
@@ -465,30 +481,42 @@ fn part2() -> Result<()> {
 
 	// lowest location id that corresponds to any of the initial seeds
 	// we could solve this forwards...
-	let min_interval = intervals.into_par_iter().min_by(|seed_interval1, seed_interval2| {
-		let min_seed1: u128 = (seed_interval1.start..seed_interval1.stop).into_par_iter().min_by(|seed1, seed2| {
-			// this is where we should use interval_overlap... I think
-			let soil = &seed_to_soil_map.to_destination(&seed1);
-			let fertilizer = &soil_to_fertilizer_map.to_destination(&soil);
-			let water = &fertilizer_to_water_map.to_destination(&fertilizer);
-			let light = &water_to_light_map.to_destination(&water);
-			let temp = &light_to_temperature_map.to_destination(&light);
-			let hum = &temperature_to_humidity_map.to_destination(&temp);
-			let loc1 = &humidity_to_location_map.to_destination(&hum);
-			
-			let soil = &seed_to_soil_map.to_destination(&seed2);
-			let fertilizer = &soil_to_fertilizer_map.to_destination(&soil);
-			let water = &fertilizer_to_water_map.to_destination(&fertilizer);
-			let light = &water_to_light_map.to_destination(&water);
-			let temp = &light_to_temperature_map.to_destination(&light);
-			let hum = &temperature_to_humidity_map.to_destination(&temp);
-			let loc2 = &humidity_to_location_map.to_destination(&hum);
-			
-			loc1.cmp(loc2)
-		}).unwrap();
+	let mut locations: Arc<Mutex<Vec<u128>>> = Arc::new(Mutex::new(vec![]));
+	
+	let min_interval = intervals
+		.into_par_iter()
+		.min_by(|seed_interval1, seed_interval2| {
 		
-		let min_seed2 = (seed_interval2.start..seed_interval2.stop).into_par_iter().min_by(|seed1, seed2| {
-			// thread::spawn(|| {
+		let min_seed1: u128 = (seed_interval1.start..=seed_interval1.stop)
+			.into_par_iter()
+			.min_by(|seed1, seed2| {
+				// this is where we should use interval_overlap... I think
+				let soil = &seed_to_soil_map.to_destination(&seed1);
+				let fertilizer = &soil_to_fertilizer_map.to_destination(&soil);
+				let water = &fertilizer_to_water_map.to_destination(&fertilizer);
+				let light = &water_to_light_map.to_destination(&water);
+				let temp = &light_to_temperature_map.to_destination(&light);
+				let hum = &temperature_to_humidity_map.to_destination(&temp);
+				let loc1 = &humidity_to_location_map.to_destination(&hum);
+				
+				let soil = &seed_to_soil_map.to_destination(&seed2);
+				let fertilizer = &soil_to_fertilizer_map.to_destination(&soil);
+				let water = &fertilizer_to_water_map.to_destination(&fertilizer);
+				let light = &water_to_light_map.to_destination(&water);
+				let temp = &light_to_temperature_map.to_destination(&light);
+				let hum = &temperature_to_humidity_map.to_destination(&temp);
+				let loc2 = &humidity_to_location_map.to_destination(&hum);
+				
+				let mut data = locations.lock().unwrap();
+				data.push(loc1.clone());
+				
+				loc1.cmp(loc2)
+		}).unwrap();
+	
+		let min_seed2 = (seed_interval2.start..=seed_interval2.stop)
+			.into_par_iter()
+			.min_by(|seed1, seed2| {
+			
 			let soil = &seed_to_soil_map.to_destination(&seed1);
 			let fertilizer = &soil_to_fertilizer_map.to_destination(&soil);
 			let water = &fertilizer_to_water_map.to_destination(&fertilizer);
@@ -504,6 +532,9 @@ fn part2() -> Result<()> {
 			let temp = &light_to_temperature_map.to_destination(&light);
 			let hum = &temperature_to_humidity_map.to_destination(&temp);
 			let loc2 = &humidity_to_location_map.to_destination(&hum);
+			
+			let mut data = locations.lock().unwrap();
+			data.push(loc1.clone());
 			
 			loc1.cmp(loc2)
 		}).unwrap();
@@ -511,7 +542,9 @@ fn part2() -> Result<()> {
 		min_seed1.cmp(&min_seed2)
 	}).unwrap();
 	
-	let global_min_seed: u128 = (min_interval.start..min_interval.stop).into_par_iter().min_by(|seed1, seed2| {
+	let global_min_seed: u128 = (min_interval.start..=min_interval.stop)
+		.into_par_iter()
+		.min_by(|seed1, seed2| {
 		// thread::spawn(|| {
 		let soil = &seed_to_soil_map.to_destination(&seed1);
 		let fertilizer = &soil_to_fertilizer_map.to_destination(&soil);
@@ -520,7 +553,7 @@ fn part2() -> Result<()> {
 		let temp = &light_to_temperature_map.to_destination(&light);
 		let hum = &temperature_to_humidity_map.to_destination(&temp);
 		let loc1 = &humidity_to_location_map.to_destination(&hum);
-		
+	
 		let soil = &seed_to_soil_map.to_destination(&seed2);
 		let fertilizer = &soil_to_fertilizer_map.to_destination(&soil);
 		let water = &fertilizer_to_water_map.to_destination(&fertilizer);
@@ -528,7 +561,7 @@ fn part2() -> Result<()> {
 		let temp = &light_to_temperature_map.to_destination(&light);
 		let hum = &temperature_to_humidity_map.to_destination(&temp);
 		let loc2 = &humidity_to_location_map.to_destination(&hum);
-		
+	
 		loc1.cmp(loc2)
 	}).unwrap();
 	
@@ -540,7 +573,15 @@ fn part2() -> Result<()> {
 	let hum = &temperature_to_humidity_map.to_destination(&temp);
 	let global_min_loc = &humidity_to_location_map.to_destination(&hum);
 	
-	println!("{global_min_loc}");
+	
+	let locations = locations.lock().unwrap();
+	
+	let min = locations.iter().min().unwrap();
+	dbg!(min);
+	println!("{min}");
+	
+	// println!("{global_min_loc}");
+	// 511055685 is too high
 	// 1100841983 is too high
 	// 1134543333 is too high
 	//
@@ -596,8 +637,8 @@ mod tests {
 			map_ranges: vec!(res_range)
 		};
 		
-		let source_resource = 1;
-		let destination_resource = 1;
+		let source_resource = 1u128;
+		let destination_resource = 1u128;
 		// unmapped
 		assert_eq!(res_map.to_destination(source_resource), destination_resource);
 		
