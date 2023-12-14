@@ -13,3 +13,4 @@ regex = "1.10.2"
 lazy_static = { version = "1.4.0", features = [] }
 aoc = { path = ".." }
 rust-lapper = "1.1.0"
+rayon = "1.8.0"
