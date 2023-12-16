@@ -1,3 +1,5 @@
+#![feature(slice_partition_dedup)]
+
 use std::{env};
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
@@ -61,10 +63,9 @@ struct Hand {
 }
 
 impl Hand {
-    pub fn kind(&self) -> Kind {
+    pub fn kind(&mut self) -> Kind {
         let card_set = HashSet::from(self.cards);
         if card_set.len() == 1 { return Kind::FiveOfAKind(*card_set.iter().next().unwrap())}
-        
         if card_set.len() == 5 {
             // High. Find the highest card
             let highest_card = self.cards.iter()
@@ -72,11 +73,21 @@ impl Hand {
                 .clone();
             return Kind::High(highest_card)
         }
+        if card_set.len() == 4 {
+            // find the duplicate. It will be the difference between this set and the original
+            // let pair_card = card_set.difference(self.cards);
+            let mut hand_clone = self.cards.clone();
+            let hand_partition = hand_clone.partition_dedup();
+            let (rest, pair_cards) = hand_partition;
+            return Kind::OnePair(*pair_cards.iter().next().unwrap())
+        }
         
-        return Kind::High('A')
+        // by inference, card_set.len() is between 2-4 (pair, full house,
+        
+        return Kind::High('0')
     }
     
-    pub fn score(&self) -> u32 {
+    pub fn score(&mut self) -> u32 {
         self.kind().score()
     }
     
@@ -134,7 +145,7 @@ mod tests {
     
     #[test]
     fn it_draws_five_of_a_kind() {
-        let hand = Hand {
+        let mut hand = Hand {
             cards: ['A','A','A','A','A'],
             bid: 0,
             rank: 0,
@@ -147,7 +158,7 @@ mod tests {
     
     #[test]
     fn it_draws_ace_high() {
-        let hand = Hand {
+        let mut hand = Hand {
             cards: ['2','3','A','4','5'],
             bid: 0,
             rank: 0,
@@ -155,5 +166,18 @@ mod tests {
         
         assert_eq!(hand.kind(), Kind::High('A'));
         assert_ne!(hand.kind(), Kind::High('K'));
+    }
+    
+    #[test]
+    fn it_draws_one_pair() {
+        let mut hand = Hand {
+            cards: ['J','J','A','4','5'],
+            bid: 0,
+            rank: 0,
+        };
+        
+        assert_eq!(hand.kind(), Kind::OnePair('J'));
+        assert_ne!(hand.kind(), Kind::OnePair('4'));
+        assert_ne!(hand.kind(), Kind::TwoPair('J', 'A'));
     }
 }
