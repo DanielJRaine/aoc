@@ -29,14 +29,27 @@ const CARDS: [Card; 13] = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4'
 
 // let DECK: HashSet<Card> = HashSet::from(['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']);
 
-// type
-enum Type {
+// a Hand is scored based on its type. These are the types arranged from highest scoring to lowest scoring.
+enum Kind {
     FiveOfAKind(Card),
     FourOfAKind(Card),
     FullHouse(Card, Card),
     TwoPair(Card, Card),
     OnePair(Card),
-    High(Card), // how to specify this as a CARD. Make CARD into enum as well?
+    High(Card),
+}
+
+impl Kind {
+    fn score(&self) -> u32 {
+        match self {
+            Kind::FiveOfAKind(_) => 6, // Highest score
+            Kind::FourOfAKind(_) => 5,
+            Kind::FullHouse(_, _) => 4,
+            Kind::TwoPair(_, _) => 3,
+            Kind::OnePair(_) => 2,
+            Kind::High(_) => 1, // Lowest score
+        }
+    }
 }
 
 struct Hand {
@@ -46,16 +59,13 @@ struct Hand {
 }
 
 impl Hand {
-    pub fn kind() -> Type {
-        Type::High('A')
+    pub fn kind(&self) -> Kind {
+        // todo!("calculate kind of hand");
+        return Kind::High('A')
     }
     
-    pub fn secondary_ord() -> Option<Ordering> {
-        todo!();
-    }
-    
-    pub fn secondary_eq() -> bool {
-        todo!();
+    pub fn score(&self) -> u32 {
+        self.kind().score()
     }
     
     pub fn winnings(&self) -> u32 {
