@@ -79,20 +79,23 @@ fn part1() -> Result<()> {
         })
     }
     
-    let mut ways_to_win: Vec<u32> = vec![];
+    let mut potential_winning_speeds: Vec<usize> = vec![];
     for race in &races {
+        let mut ways_to_win: Vec<u32> = vec![];
         let time_allowed = race.time_allowed;
         let mut dists: Vec<u32> = vec![];
         for speed in 1..time_allowed {
             let dist = distance(speed, time_allowed);
-            dists.push(dist);
+            if &dist > &race.best_distance {
+                ways_to_win.push(speed);
+            }
         }
         
-        dbg!()
+        potential_winning_speeds.push(ways_to_win.len());
     }
     
     // multiply the number of ways to win in each race together
-    let product = ways_to_win.into_iter().reduce(|acc, w| acc * w ).unwrap();
+    let product = potential_winning_speeds.into_iter().reduce(|acc, w| acc * w ).unwrap();
     
     println!("{product}");
     dbg!();
