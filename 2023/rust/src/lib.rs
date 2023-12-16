@@ -9,9 +9,8 @@ pub fn read_input() -> String {
 }
 
 pub fn parse_digits(input: &str) -> u32 {
-    let digits: String = input.chars()
-        .filter(|c| c.is_numeric()).collect();
-    
+    let digits: String = input.chars().filter(|c| c.is_numeric()).collect();
+
     digits.parse::<u32>().unwrap()
 }
 

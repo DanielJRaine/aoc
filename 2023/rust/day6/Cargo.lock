@@ -121,7 +121,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "day0"
+name = "day6"
 version = "0.1.0"
 dependencies = [
  "aoc",
