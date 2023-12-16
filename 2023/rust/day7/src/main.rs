@@ -84,11 +84,20 @@ impl Hand {
             },
             3 => {
                 // either two pair or three of a kind
-                // [A, A, A, K, Q]
                 let mut hand_clone = self.cards.clone();
                 let hand_partition = hand_clone.partition_dedup();
                 let (rest, pair_cards) = hand_partition;
-                return Kind::ThreeOfAKind(*pair_cards.iter().next().unwrap());
+                
+                // check if the pair_cards are identical
+                if pair_cards[0] == pair_cards[1] {
+                // [A, A, A, K, Q]
+                    return Kind::ThreeOfAKind(*pair_cards.iter().next().unwrap());
+                } else {
+                // [A, A, K, K, Q]
+                    pair_cards.sort();
+                    return Kind::TwoPair(pair_cards[0], pair_cards[1])
+                }
+                
             },
             2 => {
                 // full house (one pair and one trio)
@@ -201,17 +210,6 @@ mod tests {
         assert_ne!(hand.kind(), Kind::OnePair('4'));
         assert_ne!(hand.kind(), Kind::TwoPair('J', 'A'));
     }
-
-    #[test]
-    fn it_draws_three_of_a_kind() {
-        let mut hand = Hand {
-            cards: ['J', 'J', 'J', '4', '5'],
-            bid: 0,
-            rank: 0,
-        };
-
-        assert_eq!(hand.kind(), Kind::ThreeOfAKind('J'));
-    }
     
     #[test]
     fn it_draws_a_full_house() {
@@ -223,5 +221,28 @@ mod tests {
         };
         
         assert_eq!(hand.kind(), Kind::FullHouse('J', 'Q'));
+    }
+    
+    #[test]
+    fn it_draws_three_of_a_kind() {
+        let mut hand = Hand {
+            cards: ['J', 'J', 'J', 'Q', 'K'],
+            bid: 0,
+            rank: 0,
+        };
+        
+        assert_eq!(hand.kind(), Kind::ThreeOfAKind('J'));
+    }
+    
+    #[test]
+    fn it_draws_two_pair() {
+        let mut hand = Hand {
+            cards: ['J', 'J', 'Q', 'Q', 'K'],
+            bid: 0,
+            rank: 0,
+        };
+        
+        // these are sorted alphabetically for now
+        assert_eq!(hand.kind(), Kind::TwoPair('J', 'Q'));
     }
 }
