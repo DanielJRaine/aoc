@@ -62,6 +62,13 @@ struct Hand {
 
 impl Hand {
     pub fn kind(&self) -> Kind {
+        let card_set = HashSet::from(self.cards);
+        if card_set.len() == 1 { return Kind::FiveOfAKind(*card_set.iter().next().unwrap())}
+        
+        if card_set.len() == 5 {
+            // High
+            
+        }
         
         return Kind::High('A')
     }
