@@ -30,6 +30,7 @@ const CARDS: [Card; 13] = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4'
 // let DECK: HashSet<Card> = HashSet::from(['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']);
 
 // a Hand is scored based on its type. These are the types arranged from highest scoring to lowest scoring.
+#[derive(PartialEq, Debug)]
 enum Kind {
     FiveOfAKind(Card),
     FourOfAKind(Card),
@@ -52,6 +53,7 @@ impl Kind {
     }
 }
 
+#[derive(Default)]
 struct Hand {
     cards: [Card; 5],
     bid: u32,
@@ -60,7 +62,7 @@ struct Hand {
 
 impl Hand {
     pub fn kind(&self) -> Kind {
-        // todo!("calculate kind of hand");
+        
         return Kind::High('A')
     }
     
@@ -121,7 +123,13 @@ mod tests {
     use super::*;
     
     #[test]
-    fn it_eq() {
-        assert_eq!(1, 1);
+    fn it_draws_a_hand() {
+        let hand = Hand {
+            cards: ['A','A','A','A','A'],
+            bid: 0,
+            rank: 0,
+        };
+        
+        assert_eq!(hand.kind(), Kind::FiveOfAKind('A'));
     }
 }
