@@ -36,6 +36,7 @@ const CARDS: [Card; 13] = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4'
 enum Kind {
     FiveOfAKind(Card),
     FourOfAKind(Card),
+    ThreeOfAKind(Card),
     FullHouse(Card, Card),
     TwoPair(Card, Card),
     OnePair(Card),
@@ -45,8 +46,9 @@ enum Kind {
 impl Kind {
     fn score(&self) -> u32 {
         match self {
-            Kind::FiveOfAKind(_) => 6, // Highest score
-            Kind::FourOfAKind(_) => 5,
+            Kind::FiveOfAKind(_) => 7, // Highest score
+            Kind::FourOfAKind(_) => 6,
+            Kind::ThreeOfAKind(_) => 5,
             Kind::FullHouse(_, _) => 4,
             Kind::TwoPair(_, _) => 3,
             Kind::OnePair(_) => 2,
@@ -80,6 +82,13 @@ impl Hand {
             let hand_partition = hand_clone.partition_dedup();
             let (rest, pair_cards) = hand_partition;
             return Kind::OnePair(*pair_cards.iter().next().unwrap())
+        }
+        if card_set.len() == 3 {
+            // [A, A, A, K, Q]
+            let mut hand_clone = self.cards.clone();
+            let hand_partition = hand_clone.partition_dedup();
+            let (rest, pair_cards) = hand_partition;
+            return Kind::ThreeOfAKind(*pair_cards.iter().next().unwrap())
         }
         
         // by inference, card_set.len() is between 2-4 (pair, full house,
@@ -179,5 +188,16 @@ mod tests {
         assert_eq!(hand.kind(), Kind::OnePair('J'));
         assert_ne!(hand.kind(), Kind::OnePair('4'));
         assert_ne!(hand.kind(), Kind::TwoPair('J', 'A'));
+    }
+    
+    #[test]
+    fn it_draws_three_of_a_kind() {
+        let mut hand = Hand {
+            cards: ['J','J','J','4','5'],
+            bid: 0,
+            rank: 0,
+        };
+        
+        assert_eq!(hand.kind(), Kind::ThreeOfAKind('J'));
     }
 }
