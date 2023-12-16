@@ -6,7 +6,10 @@ use std::fs::read_to_string;
 use jane_eyre::Result;
 use eyre::{bail, eyre};
 
+use arrayvec;
+
 use aoc;
+use arrayvec::ArrayVec;
 
 fn main() -> Result<()> {
     jane_eyre::install()?;
@@ -24,6 +27,7 @@ fn main() -> Result<()> {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
 struct Race {
     time_allowed: u32,
     best_distance: u32,
@@ -44,9 +48,9 @@ fn parse_input(line: &str) {
 
 fn part1() -> Result<()> {
     let input: String = aoc::read_input();
+    let mut lines = input.lines();
     
-    let times: String = input
-        .lines().next().unwrap()
+    let times: String = lines.next().unwrap()
         .split(":")
         .skip(1)
         .collect();
@@ -54,8 +58,7 @@ fn part1() -> Result<()> {
     let times: Vec<u32> = times.split_ascii_whitespace()
         .map(|n| n.parse::<u32>().unwrap()).collect();
     
-    let dists: String = input
-        .lines().next().unwrap()
+    let dists: String = lines.next().unwrap()
         .split(":")
         .skip(1)
         .collect();
@@ -63,7 +66,17 @@ fn part1() -> Result<()> {
     let dists: Vec<u32> = dists.split_ascii_whitespace()
         .map(|n| n.parse::<u32>().unwrap())
         .collect();
-    dbg!(dists);
+    
+    let mut races: Vec<Race> = vec![];
+    let num_races = dists.len();
+    for i in 0usize..num_races {
+        races.push(Race {
+            best_distance: dists[i],
+            time_allowed: times[i],
+        })
+    }
+    
+    dbg!(races);
     
     let ways_to_win: Vec<u32> = vec![];
     // multiply the number of ways to win in each race together
