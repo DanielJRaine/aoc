@@ -33,6 +33,9 @@ struct Race {
     best_distance: u32,
 }
 
+#[derive(Copy, Clone, Debug)]
+struct Outcome {}
+
 // For each whole millisecond you spend at the beginning of the race holding down the button,
 // the boat's speed increases by one millimeter per millisecond.
 fn distance(speed: u32, time_allowed: u32) -> u32 {
@@ -76,9 +79,18 @@ fn part1() -> Result<()> {
         })
     }
     
-    dbg!(races);
+    let mut ways_to_win: Vec<u32> = vec![];
+    for race in &races {
+        let time_allowed = race.time_allowed;
+        let mut dists: Vec<u32> = vec![];
+        for speed in 1..time_allowed {
+            let dist = distance(speed, time_allowed);
+            dists.push(dist);
+        }
+        
+        dbg!()
+    }
     
-    let ways_to_win: Vec<u32> = vec![];
     // multiply the number of ways to win in each race together
     let product = ways_to_win.into_iter().reduce(|acc, w| acc * w ).unwrap();
     
