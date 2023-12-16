@@ -66,8 +66,11 @@ impl Hand {
         if card_set.len() == 1 { return Kind::FiveOfAKind(*card_set.iter().next().unwrap())}
         
         if card_set.len() == 5 {
-            // High
-            
+            // High. Find the highest card
+            let highest_card = self.cards.iter()
+                .max().unwrap()
+                .clone();
+            return Kind::High(highest_card)
         }
         
         return Kind::High('A')
@@ -130,7 +133,7 @@ mod tests {
     use super::*;
     
     #[test]
-    fn it_draws_a_hand() {
+    fn it_draws_five_of_a_kind() {
         let hand = Hand {
             cards: ['A','A','A','A','A'],
             bid: 0,
@@ -138,5 +141,19 @@ mod tests {
         };
         
         assert_eq!(hand.kind(), Kind::FiveOfAKind('A'));
+        assert_ne!(hand.kind(), Kind::FiveOfAKind('K'));
+        assert_ne!(hand.kind(), Kind::FourOfAKind('K'));
+    }
+    
+    #[test]
+    fn it_draws_ace_high() {
+        let hand = Hand {
+            cards: ['2','3','A','4','5'],
+            bid: 0,
+            rank: 0,
+        };
+        
+        assert_eq!(hand.kind(), Kind::High('A'));
+        assert_ne!(hand.kind(), Kind::High('K'));
     }
 }
