@@ -44,10 +44,32 @@ fn parse_input(line: &str) {
 
 fn part1() -> Result<()> {
     let input: String = aoc::read_input();
-    for line in input.lines() {
     
-    }
+    let times: String = input
+        .lines().next().unwrap()
+        .split(":")
+        .skip(1)
+        .collect();
     
+    let times: Vec<u32> = times.split_ascii_whitespace()
+        .map(|n| n.parse::<u32>().unwrap()).collect();
+    
+    let dists: String = input
+        .lines().next().unwrap()
+        .split(":")
+        .skip(1)
+        .collect();
+    
+    let dists: Vec<u32> = dists.split_ascii_whitespace()
+        .map(|n| n.parse::<u32>().unwrap())
+        .collect();
+    dbg!(dists);
+    
+    let ways_to_win: Vec<u32> = vec![];
+    // multiply the number of ways to win in each race together
+    let product = ways_to_win.into_iter().reduce(|acc, w| acc * w ).unwrap();
+    
+    println!("{product}");
     dbg!();
     Ok(())
 }
