@@ -29,8 +29,8 @@ fn main() -> Result<()> {
 
 #[derive(Copy, Clone, Debug)]
 struct Race {
-    time_allowed: u32,
-    best_distance: u32,
+    time_allowed: u64,
+    best_distance: u64,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -38,7 +38,7 @@ struct Outcome {}
 
 // For each whole millisecond you spend at the beginning of the race holding down the button,
 // the boat's speed increases by one millimeter per millisecond.
-fn distance(speed: u32, time_allowed: u32) -> u32 {
+fn distance(speed: u64, time_allowed: u64) -> u64 {
     let time_charging = speed;
     let time_racing = time_allowed - time_charging;
     
@@ -58,16 +58,16 @@ fn part1() -> Result<()> {
         .skip(1)
         .collect();
     
-    let times: Vec<u32> = times.split_ascii_whitespace()
-        .map(|n| n.parse::<u32>().unwrap()).collect();
+    let times: Vec<u64> = times.split_ascii_whitespace()
+        .map(|n| n.parse::<u64>().unwrap()).collect();
     
     let dists: String = lines.next().unwrap()
         .split(":")
         .skip(1)
         .collect();
     
-    let dists: Vec<u32> = dists.split_ascii_whitespace()
-        .map(|n| n.parse::<u32>().unwrap())
+    let dists: Vec<u64> = dists.split_ascii_whitespace()
+        .map(|n| n.parse::<u64>().unwrap())
         .collect();
     
     let mut races: Vec<Race> = vec![];
@@ -81,9 +81,9 @@ fn part1() -> Result<()> {
     
     let mut potential_winning_speeds: Vec<usize> = vec![];
     for race in &races {
-        let mut ways_to_win: Vec<u32> = vec![];
+        let mut ways_to_win: Vec<u64> = vec![];
         let time_allowed = race.time_allowed;
-        let mut dists: Vec<u32> = vec![];
+        let mut dists: Vec<u64> = vec![];
         for speed in 1..time_allowed {
             let dist = distance(speed, time_allowed);
             if &dist > &race.best_distance {
@@ -98,14 +98,12 @@ fn part1() -> Result<()> {
     let product = potential_winning_speeds.into_iter().reduce(|acc, w| acc * w ).unwrap();
     
     println!("{product}");
-    dbg!();
     Ok(())
 }
 
 fn part2() -> Result<()> {
-    todo!();
+    // only the input changed
     
-    dbg!();
     Ok(())
 }
 
