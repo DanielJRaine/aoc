@@ -90,9 +90,10 @@ fn part1() -> Result<()> {
     }
     
     let hands: Vec<Hand> = vec![];
-    let sum: u32 = 0;
+    let mut sum: u32 = 0;
     // sum the winnings
-    let sum: u32 = hands.iter().fold(0 |acc, hand| acc + *hand.winnings());
+    let sum: u32 = hands.iter()
+        .fold(0, |acc, hand| sum + hand.winnings());
     println!("{sum}");
     
     Ok(())
