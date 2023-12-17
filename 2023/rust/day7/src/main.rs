@@ -151,9 +151,22 @@ impl PartialOrd for Hand {
 
 fn part1() -> Result<()> {
     let input: String = aoc::read_input();
-    for line in input.lines() {}
-
-    let hands: Vec<Hand> = vec![];
+    let mut hands: Vec<Hand> = vec![];
+    for line in input.lines() {
+        dbg!();
+        let (cards, bid) = line.split_once(" ").unwrap();
+        
+        hands.push(Hand {
+            cards: cards.chars().collect::<Vec<char>>().try_into().unwrap(),
+            bid: bid.parse::<u32>().unwrap(),
+            rank: 0,
+        })
+    }
+    
+    // first, sort them by just the kind
+    // next, sort each group of kind by secondary ordering
+    // put them all in an array, and the rank is the index
+    
     let mut sum: u32 = 0;
     // sum the winnings
     let sum: u32 = hands.iter().fold(0, |acc, hand| sum + hand.winnings());
