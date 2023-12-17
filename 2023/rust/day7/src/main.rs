@@ -138,8 +138,7 @@ impl Eq for Hand {}
 impl PartialEq for Hand {
     fn eq(&self, other: &Self) -> bool {
         if self.kind().score().eq(&other.kind().score()) {
-            todo!("secondary ordering");
-            
+            return break_tie(self, &other) == Ordering::Equal
         } else {
             false
         }
@@ -148,8 +147,8 @@ impl PartialEq for Hand {
 
 impl Ord for Hand {
     fn cmp(&self, other: &Self) -> Ordering {
-        if self.kind().score().eq(&other.kind().score()) {
-            todo!("secondary ordering")
+        return if self.kind().score().eq(&other.kind().score()) {
+            break_tie(self, &other)
         } else {
             self.kind().score().cmp(&other.kind().score())
         }
@@ -158,10 +157,10 @@ impl Ord for Hand {
 
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        if self.kind().score().eq(&other.kind().score()) {
-            todo!("secondary ordering")
+        return if self.kind().score().eq(&other.kind().score()) {
+            Some(break_tie(self, &other))
         } else {
-            return Some(self.kind().score().cmp(&other.kind().score()));
+            Some(self.kind().score().cmp(&other.kind().score()))
         }
     }
 }
