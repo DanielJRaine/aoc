@@ -199,17 +199,16 @@ fn part1() -> Result<()> {
         })
     }
     
-    // first, sort them by just the kind
-    println!("unsorted {:#?}", &hands);
-    // hands.sort_by(|h1, h2| h1.cmp(h2));
     hands.sort();
-    println!("sorted {:#?}", &hands);
-    // next, sort each group of kind by secondary ordering
-    // put them all in an array, and the rank is the index
+    println!("{:#?}", &hands);
+    // the rank is the index
+    let sum = hands.into_iter()
+        .enumerate()
+        .fold(0, |acc, (i, h)| {
+            return acc + (h.bid * (i + 1) as u32)
+        });
     
-    let mut sum: u32 = 0;
     // sum the winnings
-    let sum: u32 = hands.iter().fold(0, |acc, hand| sum + hand.winnings());
     println!("{sum}");
 
     Ok(())
