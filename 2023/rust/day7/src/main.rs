@@ -8,6 +8,7 @@ use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fs::read_to_string;
+use std::ops::Index;
 
 fn main() -> Result<()> {
     jane_eyre::install()?;
@@ -137,7 +138,8 @@ impl Eq for Hand {}
 impl PartialEq for Hand {
     fn eq(&self, other: &Self) -> bool {
         if self.kind().score().eq(&other.kind().score()) {
-            todo!("secondary ordering")
+            todo!("secondary ordering");
+            
         } else {
             false
         }
@@ -162,6 +164,26 @@ impl PartialOrd for Hand {
             return Some(self.kind().score().cmp(&other.kind().score()));
         }
     }
+}
+
+fn break_tie(h1: &Hand, h2: &Hand) -> Ordering {
+    for i in 0..5 {
+        // remember, scores are inverted by priority (higher scores are lower number)
+        let card1 = h1.cards[i];
+        let score1 = CARDS.iter().position(|c| c == &card1).unwrap();
+        
+        let card2 = h2.cards[i];
+        let score2 = CARDS.iter().position(|c| c == &card2).unwrap();
+        
+        
+        if score1 < score2  {
+            return Ordering::Greater;
+        } else if score1 > score2 {
+            return Ordering::Less
+        }
+    }
+    
+    Ordering::Equal
 }
 
 fn part1() -> Result<()> {
@@ -276,5 +298,30 @@ mod tests {
         
         // these are sorted alphabetically for now
         assert_eq!(hand.kind(), Kind::TwoPair('J', 'Q'));
+    }
+    
+    #[test]
+    fn it_breaks_tie() {
+        let mut hand1 = Hand {
+            cards: ['A', 'A', 'Q', 'Q', 'K'],
+            bid: 0,
+            rank: 0,
+        };
+        
+        let mut hand2 = Hand {
+            cards: ['J', 'J', 'Q', 'Q', 'K'],
+            bid: 0,
+            rank: 0,
+        };
+        
+        let mut hand3 = Hand {
+            cards: ['A', 'A', 'Q', 'Q', 'K'],
+            bid: 0,
+            rank: 0,
+        };
+        
+        assert_eq!(break_tie(&hand1, &hand2), Ordering::Greater);
+        assert_ne!(break_tie(&hand1, &hand2), Ordering::Less);
+        assert_eq!(break_tie(&hand1, &hand3), Ordering::Equal);
     }
 }
