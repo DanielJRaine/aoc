@@ -59,7 +59,7 @@ impl Kind {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 struct Hand {
     cards: [Card; 5],
     bid: u32,
@@ -67,7 +67,7 @@ struct Hand {
 }
 
 impl Hand {
-    pub fn kind(&mut self) -> Kind {
+    pub fn kind(&self) -> Kind {
         let card_set = HashSet::from(self.cards);
         match card_set.len() {
             5 => {
@@ -78,6 +78,7 @@ impl Hand {
             4 => {
                 // [A, A, K, Q, J]
                 let mut hand_clone = self.cards.clone();
+                hand_clone.sort();
                 let hand_partition = hand_clone.partition_dedup();
                 let (rest, pair_cards) = hand_partition;
                 return Kind::OnePair(*pair_cards.iter().next().unwrap());
@@ -85,6 +86,7 @@ impl Hand {
             3 => {
                 // either two pair or three of a kind
                 let mut hand_clone = self.cards.clone();
+                hand_clone.sort();
                 let hand_partition = hand_clone.partition_dedup();
                 let (rest, pair_cards) = hand_partition;
                 
@@ -103,6 +105,7 @@ impl Hand {
                 // full house (one pair and one trio)
                 // [A, A, K, K, K]
                 let mut hand_clone = self.cards.clone();
+                hand_clone.sort();
                 let hand_partition = hand_clone.partition_dedup();
                 let (rest, _) = hand_partition;
                 let mut rest = rest.iter();
@@ -139,13 +142,13 @@ impl PartialEq for Hand {
 
 impl Ord for Hand {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.rank.cmp(&other.rank)
+        self.kind().score().cmp(&other.kind().score())
     }
 }
 
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        return Some(self.rank.cmp(&other.rank));
+        return Some(self.kind().score().cmp(&other.kind().score()));
     }
 }
 
@@ -164,6 +167,10 @@ fn part1() -> Result<()> {
     }
     
     // first, sort them by just the kind
+    println!("unsorted {:#?}", &hands);
+    // hands.sort_by(|h1, h2| h1.cmp(h2));
+    hands.sort();
+    println!("sorted {:#?}", &hands);
     // next, sort each group of kind by secondary ordering
     // put them all in an array, and the rank is the index
     
