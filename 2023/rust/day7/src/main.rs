@@ -136,19 +136,31 @@ impl Eq for Hand {}
 
 impl PartialEq for Hand {
     fn eq(&self, other: &Self) -> bool {
-        return self.rank == other.rank;
+        if self.kind().score().eq(&other.kind().score()) {
+            todo!("secondary ordering")
+        } else {
+            false
+        }
     }
 }
 
 impl Ord for Hand {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.kind().score().cmp(&other.kind().score())
+        if self.kind().score().eq(&other.kind().score()) {
+            todo!("secondary ordering")
+        } else {
+            self.kind().score().cmp(&other.kind().score())
+        }
     }
 }
 
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        return Some(self.kind().score().cmp(&other.kind().score()));
+        if self.kind().score().eq(&other.kind().score()) {
+            todo!("secondary ordering")
+        } else {
+            return Some(self.kind().score().cmp(&other.kind().score()));
+        }
     }
 }
 
