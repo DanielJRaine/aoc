@@ -37,8 +37,8 @@ const CARDS: [Card; 13] = [
 enum Kind {
     FiveOfAKind(Card),
     FourOfAKind(Card),
-    ThreeOfAKind(Card),
     FullHouse(Card, Card),
+    ThreeOfAKind(Card),
     TwoPair(Card, Card),
     OnePair(Card),
     High(Card),
@@ -94,8 +94,8 @@ impl Kind {
         match self {
             Kind::FiveOfAKind(_) => 7, // Highest score
             Kind::FourOfAKind(_) => 6,
-            Kind::ThreeOfAKind(_) => 5,
-            Kind::FullHouse(_, _) => 4,
+            Kind::FullHouse(_, _) => 5,
+            Kind::ThreeOfAKind(_) => 4,
             Kind::TwoPair(_, _) => 3,
             Kind::OnePair(_) => 2,
             Kind::High(_) => 1, // Lowest score
@@ -221,11 +221,11 @@ impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         return if self.kind().score().eq(&other.kind().score()) {
             // todo: return the higher value within each kind, otherwise go to break_tie fn
-            return if self.kind().partial_cmp(&other.kind()).unwrap() == Ordering::Equal {
+            // return if self.kind().partial_cmp(&other.kind()).unwrap() == Ordering::Equal {
                 Some(break_tie(self, &other))
-            } else {
-                self.kind().partial_cmp(&other.kind())
-            }
+            // } else {
+            //     self.kind().partial_cmp(&other.kind())
+            // }
         } else {
             Some(self.kind().score().cmp(&other.kind().score()))
         }
@@ -281,6 +281,7 @@ fn part1() -> Result<()> {
     // sum the winnings
     println!("{sum}");
     // 253125042 is too low
+    // 253021532
     // 253006710
     // 252722608
     // 252815796
