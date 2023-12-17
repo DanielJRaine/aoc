@@ -47,7 +47,7 @@ enum Kind {
 }
 
 impl Kind {
-    fn score(&self) -> u32 {
+    fn score(&self) -> u64 {
         match self {
             Kind::FiveOfAKind(_) => 7, // Highest score
             Kind::FourOfAKind(_) => 6,
@@ -63,8 +63,8 @@ impl Kind {
 #[derive(Default, Debug)]
 struct Hand {
     cards: [Card; 5],
-    bid: u32,
-    rank: u32,
+    bid: u64,
+    rank: u64,
 }
 
 impl Hand {
@@ -73,7 +73,18 @@ impl Hand {
         match card_set.len() {
             5 => {
                 // [A, K, Q, J, 10]
-                let highest_card = self.cards.iter().max().unwrap().clone();
+                let highest_card = self.cards.iter().max_by(|card1, card2| {
+                    let score1 = CARDS.iter().position(|c| c == *card1).unwrap();
+                    let score2 = CARDS.iter().position(|c| c == *card2).unwrap();
+                    
+                    if score1 < score2  {
+                        return Ordering::Greater;
+                    } else if score1 > score2 {
+                        return Ordering::Less
+                    }
+                    Ordering::Equal
+                }).unwrap().clone();
+                
                 return Kind::High(highest_card);
             },
             4 => {
@@ -124,11 +135,11 @@ impl Hand {
         return Kind::High('0');
     }
 
-    pub fn score(&mut self) -> u32 {
+    pub fn score(&mut self) -> u64 {
         self.kind().score()
     }
 
-    pub fn winnings(&self) -> u32 {
+    pub fn winnings(&self) -> u64 {
         self.bid * self.rank
     }
 }
@@ -194,23 +205,25 @@ fn part1() -> Result<()> {
         
         hands.push(Hand {
             cards: cards.chars().collect::<Vec<char>>().try_into().unwrap(),
-            bid: bid.parse::<u32>().unwrap(),
+            bid: bid.parse::<u64>().unwrap(),
             rank: 0,
         })
     }
     
     hands.sort();
-    println!("{:#?}", &hands);
+    for hand in hands.iter() {
+        println!("{:?} : {:?}", &hand.cards, &hand.bid);
+    }
     // the rank is the index
     let sum = hands.into_iter()
         .enumerate()
         .fold(0, |acc, (i, h)| {
-            return acc + (h.bid * (i + 1) as u32)
+            return acc + (h.bid * (i + 1) as u64)
         });
     
     // sum the winnings
     println!("{sum}");
-
+    // 253125042 is too low
     Ok(())
 }
 
@@ -318,8 +331,20 @@ mod tests {
             rank: 0,
         };
         
+        let mut ace_high = Hand {
+            cards: ['2', '3', '4', '5', 'A'],
+            bid: 0,
+            rank: 0,
+        };
+        let mut king_high = Hand {
+            cards: ['2', '3', '4', '5', 'K'],
+            bid: 0,
+            rank: 0,
+        };
+        
         assert_eq!(break_tie(&hand1, &hand2), Ordering::Greater);
         assert_ne!(break_tie(&hand1, &hand2), Ordering::Less);
         assert_eq!(break_tie(&hand1, &hand3), Ordering::Equal);
+        assert_eq!(break_tie(&ace_high, &king_high), Ordering::Greater);
     }
 }
