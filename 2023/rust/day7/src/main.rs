@@ -32,8 +32,6 @@ const CARDS: [Card; 13] = [
     'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2',
 ];
 
-// let DECK: HashSet<Card> = HashSet::from(['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']);
-
 // a Hand is scored based on its type. These are the types arranged from highest scoring to lowest scoring.
 #[derive(PartialEq, Debug)]
 enum Kind {
@@ -44,6 +42,51 @@ enum Kind {
     TwoPair(Card, Card),
     OnePair(Card),
     High(Card),
+}
+
+impl PartialOrd for Kind {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self.score() != other.score() {
+            // Compare based on the score of the hand type
+            self.score().partial_cmp(&other.score())
+        } else {
+            // If the scores are equal, then we need to compare the cards
+            use Kind::*;
+            match (self, other) {
+                (FiveOfAKind(a), FiveOfAKind(b))
+                | (FourOfAKind(a), FourOfAKind(b))
+                | (ThreeOfAKind(a), ThreeOfAKind(b))
+                | (OnePair(a), OnePair(b))
+                | (High(a), High(b)) => {
+                    
+                    let score1 = CARDS.iter().position(|c| c == a).unwrap();
+                    let score2 = CARDS.iter().position(|c| c == b).unwrap();
+                    
+                    return if score1 < score2 {
+                        Some(Ordering::Greater)
+                    } else if score1 > score2 {
+                        Some(Ordering::Less)
+                    } else {
+                        Some(Ordering::Equal)
+                    }
+                },
+                (FullHouse(a1, a2), FullHouse(b1, b2))
+                | (TwoPair(a1, a2), TwoPair(b1, b2)) => {
+                    let a1_pos = CARDS.iter().position(|&c| c == *a1);
+                    let a2_pos = CARDS.iter().position(|&c| c == *a2);
+                    let b1_pos = CARDS.iter().position(|&c| c == *b1);
+                    let b2_pos = CARDS.iter().position(|&c| c == *b2);
+                    // Compare the primary card first
+                    match a1_pos.partial_cmp(&b1_pos).unwrap().reverse() {
+                        Ordering::Equal => Some(a2_pos.partial_cmp(&b2_pos).unwrap().reverse()), // If equal, compare the secondary card
+                        other => Some(other),
+                    }
+                }
+                // If we cannot compare the kinds (which should not happen as all cases are covered), return None
+                _ => None,
+            }
+        }
+    }
 }
 
 impl Kind {
@@ -114,16 +157,24 @@ impl Hand {
                 
             },
             2 => {
-                // full house (one pair and one trio)
+                // full house (one pair and one trio) OR four_of_a_kind
                 // [A, A, K, K, K]
                 let mut hand_clone = self.cards.clone();
                 hand_clone.sort();
                 let hand_partition = hand_clone.partition_dedup();
-                let (rest, _) = hand_partition;
-                let mut rest = rest.iter();
-                let card1 = rest.next().unwrap();
-                let card2 = rest.next().unwrap();
-                return Kind::FullHouse(*card1, *card2)
+                let (rest, tuple_cards) = hand_partition;
+                
+                if tuple_cards.iter().all(|&c| c == tuple_cards[0]) {
+                    // [A, A, A, A, K]
+                    return Kind::FourOfAKind(*tuple_cards.iter().next().unwrap());
+                } else {
+                    // [A, A, K, K, Q]
+                    tuple_cards.sort();
+                    let mut rest = rest.iter();
+                    let card1 = rest.next().unwrap();
+                    let card2 = rest.next().unwrap();
+                    return Kind::FullHouse(*card1, *card2)
+                }
             }
             1 => return Kind::FiveOfAKind(*card_set.iter().next().unwrap()),
             0 => unreachable!(),
@@ -169,7 +220,12 @@ impl Ord for Hand {
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         return if self.kind().score().eq(&other.kind().score()) {
-            Some(break_tie(self, &other))
+            // todo: return the higher value within each kind, otherwise go to break_tie fn
+            return if self.kind().partial_cmp(&other.kind()).unwrap() == Ordering::Equal {
+                Some(break_tie(self, &other))
+            } else {
+                self.kind().partial_cmp(&other.kind())
+            }
         } else {
             Some(self.kind().score().cmp(&other.kind().score()))
         }
@@ -212,8 +268,9 @@ fn part1() -> Result<()> {
     
     hands.sort();
     for hand in hands.iter() {
-        println!("{:?} : {:?}", &hand.cards, &hand.bid);
+        println!("{:?} : {:?} : {:?}", &hand.cards, &hand.bid, &hand.kind());
     }
+    
     // the rank is the index
     let sum = hands.into_iter()
         .enumerate()
@@ -224,6 +281,10 @@ fn part1() -> Result<()> {
     // sum the winnings
     println!("{sum}");
     // 253125042 is too low
+    // 253006710
+    // 252722608
+    // 252815796
+    // 252697600
     Ok(())
 }
 
@@ -346,5 +407,19 @@ mod tests {
         assert_ne!(break_tie(&hand1, &hand2), Ordering::Less);
         assert_eq!(break_tie(&hand1, &hand3), Ordering::Equal);
         assert_eq!(break_tie(&ace_high, &king_high), Ordering::Greater);
+    }
+    
+    #[test]
+    fn it_compares_two_of_a_kind() {
+        let ace_high = Kind::High('A');
+        let king_high = Kind::High('K');
+        assert_ne!(ace_high, king_high);
+        assert_eq!(ace_high.partial_cmp(&king_high), Some(Ordering::Greater));
+        
+        let three_aces = Kind::ThreeOfAKind('A');
+        let three_kings = Kind::ThreeOfAKind('K');
+        let three_more_aces = Kind::ThreeOfAKind('A');
+        assert_eq!(three_aces.partial_cmp(&three_kings), Some(Ordering::Greater));
+        assert_eq!(three_aces.partial_cmp(&three_more_aces), Some(Ordering::Equal));
     }
 }
