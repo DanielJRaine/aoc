@@ -29,7 +29,7 @@ fn main() -> Result<()> {
 type Card = char;
 
 const CARDS: [Card; 13] = [
-    'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2',
+    'A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J',
 ];
 
 // a Hand is scored based on its type. These are the types arranged from highest scoring to lowest scoring.
@@ -111,11 +111,46 @@ struct Hand {
 }
 
 impl Hand {
+    pub fn joke(&self) -> Kind {
+        // generate all possible new hashsets...? Don't use hashsets at all?
+        
+        // generate only hashsets using only the chars available in the hand?
+        // generate only hashsets using only chars w/ frequency > 1?
+        // really, instead of figuring out what the kind *is*,
+        // we're trying to figure out the best hand it *could* be.
+        
+        let mut cards_clone = self.cards.clone();
+        // pull out all the J cards, then decide what to do with them?
+        let Js: Vec<&char> = cards_clone.iter().filter(|c| *c == &'J').collect();
+        dbg!();
+        
+        cards_clone.sort();
+        let hand_partition = cards_clone.partition_dedup();
+        let (rest, pair_cards) = hand_partition;
+        
+        // example
+        Kind::High('A')
+    }
+    
     pub fn kind(&self) -> Kind {
+        // fixme: so, we might need to generate more hashsets to make this work.
+            // generate all possible new hashsets...? Don't use hashsets at all?
+            // pull out all the J cards, then decide what to do with them?
+            // generate only hashsets using only the chars available in the hand?
+            // generate only hashsets using only chars w/ frequency > 1?
+            
+        // go through your code and find the latest possible place to account for jokers
+        
         let card_set = HashSet::from(self.cards);
         match card_set.len() {
             5 => {
-                // [A, K, Q, J, 10]
+                // [A, K, Q, J, T]
+                // todo: recursively call kind?
+                if self.cards.contains(&'J') {
+                    // todo:
+                    
+                }
+                
                 let highest_card = self.cards.iter().max_by(|card1, card2| {
                     let score1 = CARDS.iter().position(|c| c == *card1).unwrap();
                     let score2 = CARDS.iter().position(|c| c == *card2).unwrap();
@@ -187,7 +222,7 @@ impl Hand {
     }
 
     pub fn score(&mut self) -> u64 {
-        self.kind().score()
+        self.joke().score()
     }
 
     pub fn winnings(&self) -> u64 {
@@ -199,7 +234,7 @@ impl Eq for Hand {}
 
 impl PartialEq for Hand {
     fn eq(&self, other: &Self) -> bool {
-        if self.kind().score().eq(&other.kind().score()) {
+        if self.joke().score().eq(&other.joke().score()) {
             return break_tie(self, &other) == Ordering::Equal
         } else {
             false
@@ -209,17 +244,17 @@ impl PartialEq for Hand {
 
 impl Ord for Hand {
     fn cmp(&self, other: &Self) -> Ordering {
-        return if self.kind().score().eq(&other.kind().score()) {
+        return if self.joke().score().eq(&other.joke().score()) {
             break_tie(self, &other)
         } else {
-            self.kind().score().cmp(&other.kind().score())
+            self.joke().score().cmp(&other.joke().score())
         }
     }
 }
 
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        return if self.kind().score().eq(&other.kind().score()) {
+        return if self.joke().score().eq(&other.joke().score()) {
             // todo: return the higher value within each kind, otherwise go to break_tie fn
             // return if self.kind().partial_cmp(&other.kind()).unwrap() == Ordering::Equal {
                 Some(break_tie(self, &other))
@@ -227,7 +262,7 @@ impl PartialOrd for Hand {
             //     self.kind().partial_cmp(&other.kind())
             // }
         } else {
-            Some(self.kind().score().cmp(&other.kind().score()))
+            Some(self.joke().score().cmp(&other.joke().score()))
         }
     }
 }
@@ -280,19 +315,37 @@ fn part1() -> Result<()> {
     
     // sum the winnings
     println!("{sum}");
-    // 253125042 is too low
-    // 253021532
-    // 253006710
-    // 252722608
-    // 252815796
-    // 252697600
     Ok(())
 }
 
 fn part2() -> Result<()> {
-    todo!();
-
-    dbg!();
+    let input: String = aoc::read_input();
+    let mut hands: Vec<Hand> = vec![];
+    for line in input.lines() {
+        dbg!();
+        let (cards, bid) = line.split_once(" ").unwrap();
+        
+        hands.push(Hand {
+            cards: cards.chars().collect::<Vec<char>>().try_into().unwrap(),
+            bid: bid.parse::<u64>().unwrap(),
+            rank: 0,
+        })
+    }
+    
+    hands.sort();
+    for hand in hands.iter() {
+        println!("{:?} : {:?} : {:?}", &hand.cards, &hand.bid, &hand.joke());
+    }
+    
+    // the rank is the index
+    let sum = hands.into_iter()
+        .enumerate()
+        .fold(0, |acc, (i, h)| {
+            return acc + (h.bid * (i + 1) as u64)
+        });
+    
+    // sum the winnings
+    println!("{sum}");
     Ok(())
 }
 
