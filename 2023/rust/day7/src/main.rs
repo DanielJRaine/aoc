@@ -6,9 +6,11 @@ use jane_eyre::Result;
 use regex::Regex;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
-use std::env;
+use std::{env, mem};
 use std::fs::read_to_string;
 use std::ops::Index;
+use itertools::Itertools;
+use mem::replace;
 
 fn main() -> Result<()> {
     jane_eyre::install()?;
@@ -121,8 +123,23 @@ impl Hand {
         
         let mut cards_clone = self.cards.clone();
         // pull out all the J cards, then decide what to do with them?
-        let Js: Vec<&char> = cards_clone.iter().filter(|c| *c == &'J').collect();
+        let Js: Vec<char> = cards_clone.into_iter().filter(|c| *c == 'J').collect();
+        let rest: Vec<char> = cards_clone.into_iter().filter(|c| *c != 'J').collect();
+        
+        // find highest repeated char
+        let card_counts = rest.into_iter().counts();
+        let (highest_freq_card, freq) = card_counts.iter()
+            .max_by(|(c1, freq1), (c2, freq2)| freq1.cmp(freq2))
+            .unwrap();
+        
+        let new_hand: Vec<&Card> = cards_clone.iter()
+            .map(|c| {
+                if *c == 'J' { return highest_freq_card }
+                c
+            }).collect();
+        
         dbg!();
+        // now call the normal fn kind()?
         
         cards_clone.sort();
         let hand_partition = cards_clone.partition_dedup();
