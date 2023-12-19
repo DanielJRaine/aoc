@@ -1,3 +1,5 @@
+#![feature(iter_map_windows)]
+
 use std::{env};
 use std::collections::HashMap;
 use std::fs::read_to_string;
@@ -24,27 +26,26 @@ fn main() -> Result<()> {
 
 struct Node {
     id: String,
-    children: [String; 2]
+    children: (String, String)
 }
+
+// struct network {}
+
 
 fn part1() -> Result<()> {
     let input: String = aoc::read_input();
-    let mut nodes: Vec<Node> = vec![];
+    // let mut nodes: Vec<Node> = vec![];
+    let mut nodes = HashMap::new();
     for line in input.lines() {
         let (id, children_str) = line.split_once(" = ").unwrap();
         let children: Vec<String> = children_str
             .trim_end_matches(')')
             .split_terminator(['(', ',', ' '])
             .filter(|c| *c != "")
-            .map(|c| c.to_string())
-            .collect();
+            .map(|c| c.to_string()).collect();
         
-        let node = Node {
-            id: id.to_owned(),
-            children: children.try_into().unwrap()
-        };
-        
-        nodes.push(node);
+        let children = (children[0].to_string(), children[1].to_string());
+        nodes.insert(id.to_string(), children);
     }
     
     dbg!();
