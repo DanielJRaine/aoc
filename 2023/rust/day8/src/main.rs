@@ -44,7 +44,7 @@ fn part1() -> Result<()> {
             .filter(|c| *c != "")
             .map(|c| c.to_string()).collect();
         
-        let children = (children[0].to_string(), children[1].to_string());
+        let children = [children[0].to_string(), children[1].to_string()];
         nodes.insert(id.to_string(), children);
     }
     
@@ -52,9 +52,17 @@ fn part1() -> Result<()> {
 }
 
 /// returns the number of steps taken until a terminator is reached.
-fn traverse(path: [char; 2], network: HashMap<String, (String, String)>, terminator: &str) -> u64 {
+fn traverse(start: &str, path: [usize; 2], network: HashMap<String, [String; 2]>, terminator: &str) -> u64 {
+    let mut steps = 0;
+    let mut next_step: &str = start;
     
-    dbg!();
+    for step in path {
+        steps += 1;
+        let children = network.get(next_step).unwrap();
+        dbg!();
+        next_step = &children[step];
+        if next_step == terminator { return steps}
+    }
     0
 }
 
@@ -70,16 +78,16 @@ mod tests {
     use super::*;
     #[test]
     fn it_traverses_the_wasteland() {
-        let network: HashMap<String, (String,String)> = HashMap::from([
-            ("AAA".to_string(), ("BBB".to_string(), "CCC".to_string())),
-             ("BBB".to_string(), ("DDD".to_string(), "EEE".to_string())),
-              ("CCC".to_string(), ("ZZZ".to_string(), "GGG".to_string())),
-               ("DDD".to_string(), ("DDD".to_string(), "DDD".to_string())),
-                ("EEE".to_string(), ("EEE".to_string(), "EEE".to_string())),
-                 ("GGG".to_string(), ("GGG".to_string(), "GGG".to_string())),
-                  ("ZZZ".to_string(), ("ZZZ".to_string(), "ZZZ".to_string())),
+        let network: HashMap<String, [String; 2]> = HashMap::from([
+            ("AAA".to_string(), ["BBB".to_string(), "CCC".to_string()]),
+             ("BBB".to_string(), ["DDD".to_string(), "EEE".to_string()]),
+              ("CCC".to_string(), ["ZZZ".to_string(), "GGG".to_string()]),
+               ("DDD".to_string(), ["DDD".to_string(), "DDD".to_string()]),
+                ("EEE".to_string(), ["EEE".to_string(), "EEE".to_string()]),
+                 ("GGG".to_string(), ["GGG".to_string(), "GGG".to_string()]),
+                  ("ZZZ".to_string(), ["ZZZ".to_string(), "ZZZ".to_string()]),
         ]);
-        traverse(['L','R'], network, "ZZZ");
+        traverse("AAA", [1,0], network, "ZZZ");
         assert_eq!(1, 1);
     }
 }
