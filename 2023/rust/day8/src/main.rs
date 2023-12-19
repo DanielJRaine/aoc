@@ -22,10 +22,29 @@ fn main() -> Result<()> {
     }
 }
 
+struct Node {
+    id: String,
+    children: [String; 2]
+}
+
 fn part1() -> Result<()> {
     let input: String = aoc::read_input();
+    let mut nodes: Vec<Node> = vec![];
     for line in input.lines() {
-    
+        let (id, children_str) = line.split_once(" = ").unwrap();
+        let children: Vec<String> = children_str
+            .trim_end_matches(')')
+            .split_terminator(['(', ',', ' '])
+            .filter(|c| *c != "")
+            .map(|c| c.to_string())
+            .collect();
+        
+        let node = Node {
+            id: id.to_owned(),
+            children: children.try_into().unwrap()
+        };
+        
+        nodes.push(node);
     }
     
     dbg!();
