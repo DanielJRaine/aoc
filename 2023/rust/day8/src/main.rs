@@ -48,22 +48,34 @@ fn part1() -> Result<()> {
         nodes.insert(id.to_string(), children);
     }
     
+    let mut steps = 0usize;
+    steps = traverse("AAA", &vec![1,0], &nodes, "ZZZ", steps);
+    
+    println!("{steps}");
     Ok(())
 }
 
 /// returns the number of steps taken until a terminator is reached.
-fn traverse(start: &str, path: [usize; 2], network: HashMap<String, [String; 2]>, terminator: &str) -> u64 {
-    let mut steps = 0;
+fn traverse(
+    start: &str,
+    path: &Vec<usize>,
+    network: &HashMap<String, [String; 2]>,
+    terminator: &str,
+    mut steps: usize,
+) -> usize {
     let mut next_step: &str = start;
     
     for step in path {
         steps += 1;
         let children = network.get(next_step).unwrap();
         dbg!();
-        next_step = &children[step];
-        if next_step == terminator { return steps}
+        next_step = &children[*step];
+        if next_step == terminator {
+            return steps
+        }
     }
-    0
+    
+    return traverse(next_step, path, network, terminator, steps)
 }
 
 fn part2() -> Result<()> {
@@ -87,7 +99,20 @@ mod tests {
                  ("GGG".to_string(), ["GGG".to_string(), "GGG".to_string()]),
                   ("ZZZ".to_string(), ["ZZZ".to_string(), "ZZZ".to_string()]),
         ]);
-        traverse("AAA", [1,0], network, "ZZZ");
-        assert_eq!(1, 1);
+        
+        let mut steps = 0;
+        assert_eq!(traverse("AAA", &vec![1,0], &network, "ZZZ", steps), 2);
+    }
+    
+    #[test]
+    fn it_traverses_the_desert() {
+        let network: HashMap<String, [String; 2]> = HashMap::from([
+            ("AAA".to_string(), ["BBB".to_string(), "BBB".to_string()]),
+            ("BBB".to_string(), ["AAA".to_string(), "ZZZ".to_string()]),
+            ("ZZZ".to_string(), ["ZZZ".to_string(), "ZZZ".to_string()]),
+        ]);
+        
+        let mut steps = 0;
+        assert_eq!(traverse("AAA", &vec![0,0,1], &network, "ZZZ", steps), 6);
     }
 }
