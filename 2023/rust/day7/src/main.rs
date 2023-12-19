@@ -128,6 +128,12 @@ impl Hand {
         
         // find highest repeated char
         let card_counts = rest.into_iter().counts();
+        
+        // exit early if all cards are the same (otherwise it panicks)
+        if Js.len() == 5 {
+            return Kind::FiveOfAKind('J')
+        }
+        
         let (highest_freq_card, freq) = card_counts.iter()
             .max_by(|(c1, freq1), (c2, freq2)| freq1.cmp(freq2))
             .unwrap();
