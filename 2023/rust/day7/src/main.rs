@@ -138,15 +138,15 @@ impl Hand {
                 c
             }).collect();
         
-        dbg!();
-        // now call the normal fn kind()?
+        let new_cards = [*new_hand[0], *new_hand[1], *new_hand[2], *new_hand[3], *new_hand[4]];
+        // now call the normal fn kind()? Full houses might be an edge case
+        return kind(new_cards)
         
-        cards_clone.sort();
-        let hand_partition = cards_clone.partition_dedup();
-        let (rest, pair_cards) = hand_partition;
-        
-        // example
-        Kind::High('A')
+        // cards_clone.sort();
+        // let hand_partition = cards_clone.partition_dedup();
+        // let (rest, pair_cards) = hand_partition;
+        //
+        // Kind::High('A')
     }
     
     pub fn kind(&self) -> Kind {
@@ -245,6 +245,87 @@ impl Hand {
     pub fn winnings(&self) -> u64 {
         self.bid * self.rank
     }
+}
+
+fn kind(cards: [Card; 5]) -> Kind {
+    let card_set = HashSet::from(cards);
+    match card_set.len() {
+        5 => {
+            // [A, K, Q, J, T]
+            // todo: recursively call kind?
+            if cards.contains(&'J') {
+                // todo:
+                
+            }
+            
+            let highest_card = cards.iter().max_by(|card1, card2| {
+                let score1 = CARDS.iter().position(|c| c == *card1).unwrap();
+                let score2 = CARDS.iter().position(|c| c == *card2).unwrap();
+                
+                if score1 < score2  {
+                    return Ordering::Greater;
+                } else if score1 > score2 {
+                    return Ordering::Less
+                }
+                Ordering::Equal
+            }).unwrap().clone();
+            
+            return Kind::High(highest_card);
+        },
+        4 => {
+            // [A, A, K, Q, J]
+            let mut hand_clone = cards.clone();
+            hand_clone.sort();
+            let hand_partition = hand_clone.partition_dedup();
+            let (rest, pair_cards) = hand_partition;
+            return Kind::OnePair(*pair_cards.iter().next().unwrap());
+        },
+        3 => {
+            // either two pair or three of a kind
+            let mut hand_clone = cards.clone();
+            hand_clone.sort();
+            let hand_partition = hand_clone.partition_dedup();
+            let (rest, pair_cards) = hand_partition;
+            
+            // check if the pair_cards are identical
+            if pair_cards[0] == pair_cards[1] {
+                // [A, A, A, K, Q]
+                return Kind::ThreeOfAKind(*pair_cards.iter().next().unwrap());
+            } else {
+                // [A, A, K, K, Q]
+                pair_cards.sort();
+                return Kind::TwoPair(pair_cards[0], pair_cards[1])
+            }
+            
+        },
+        2 => {
+            // full house (one pair and one trio) OR four_of_a_kind
+            // [A, A, K, K, K]
+            let mut hand_clone = cards.clone();
+            hand_clone.sort();
+            let hand_partition = hand_clone.partition_dedup();
+            let (rest, tuple_cards) = hand_partition;
+            
+            if tuple_cards.iter().all(|&c| c == tuple_cards[0]) {
+                // [A, A, A, A, K]
+                return Kind::FourOfAKind(*tuple_cards.iter().next().unwrap());
+            } else {
+                // [A, A, K, K, Q]
+                tuple_cards.sort();
+                let mut rest = rest.iter();
+                let card1 = rest.next().unwrap();
+                let card2 = rest.next().unwrap();
+                return Kind::FullHouse(*card1, *card2)
+            }
+        }
+        1 => return Kind::FiveOfAKind(*card_set.iter().next().unwrap()),
+        0 => unreachable!(),
+        _ => unreachable!(),
+    }
+    
+    // by inference, card_set.len() is between 2-4 (pair, full house,
+    
+    return Kind::High('0');
 }
 
 impl Eq for Hand {}
