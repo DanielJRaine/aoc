@@ -48,8 +48,14 @@ fn part1() -> Result<()> {
         nodes.insert(id.to_string(), children);
     }
     
-    dbg!();
     Ok(())
+}
+
+/// returns the number of steps taken until a terminator is reached.
+fn traverse(path: [char; 2], network: HashMap<String, (String, String)>, terminator: &str) -> u64 {
+    
+    dbg!();
+    0
 }
 
 fn part2() -> Result<()> {
@@ -62,9 +68,18 @@ fn part2() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
     #[test]
-    fn it_eq() {
+    fn it_traverses_the_wasteland() {
+        let network: HashMap<String, (String,String)> = HashMap::from([
+            ("AAA".to_string(), ("BBB".to_string(), "CCC".to_string())),
+             ("BBB".to_string(), ("DDD".to_string(), "EEE".to_string())),
+              ("CCC".to_string(), ("ZZZ".to_string(), "GGG".to_string())),
+               ("DDD".to_string(), ("DDD".to_string(), "DDD".to_string())),
+                ("EEE".to_string(), ("EEE".to_string(), "EEE".to_string())),
+                 ("GGG".to_string(), ("GGG".to_string(), "GGG".to_string())),
+                  ("ZZZ".to_string(), ("ZZZ".to_string(), "ZZZ".to_string())),
+        ]);
+        traverse(['L','R'], network, "ZZZ");
         assert_eq!(1, 1);
     }
 }
