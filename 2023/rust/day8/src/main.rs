@@ -29,9 +29,6 @@ struct Node {
     children: (String, String)
 }
 
-// struct network {}
-
-
 fn part1() -> Result<()> {
     let input: String = aoc::read_input();
     // let mut nodes: Vec<Node> = vec![];
@@ -81,10 +78,40 @@ fn traverse(
 }
 
 fn part2() -> Result<()> {
-    todo!();
+    let input: String = aoc::read_input();
+    let mut network = HashMap::new();
+    for line in input.lines() {
+        let (id, children_str) = line.split_once(" = ").unwrap();
+        let children: Vec<String> = children_str
+            .trim_end_matches(')')
+            .split_terminator(['(', ',', ' '])
+            .filter(|c| *c != "")
+            .map(|c| c.to_string()).collect();
+        
+        let children = [children[0].to_string(), children[1].to_string()];
+        network.insert(id.to_string(), children);
+    }
     
-    dbg!();
+    let starting_nodes = find_starting_nodes(&network);
+    
+    let mut steps = 0usize;
+    println!("{:#?}", &starting_nodes);
+    // steps = traverse("AAA", &vec![
+    //     0,0,1,0,1,1,1,0,0,0,1,0,1,1,0,1,1,1,0,1,0,1,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,1,0,0,1,1,1,0,1,1,0,1,1,0,0,1,0,1,1,1,0,1,0,1,0,0,1,1,1,0,0,1,1,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,0,0,1,1,1,0,1,1,0,1,1,0,1,0,1,1,0,1,0,1,1,1,0,1,0,1,1,0,1,0,1,0,1,1,1,0,1,0,0,0,1,1,1,0,0,0,1,0,1,1,1,0,1,0,1,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1,1,0,1,0,1,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,0,1,1,1,0,0,1,0,1,1,0,0,0,1,1,0,1,1,0,1,0,1,0,0,0,1,1,0,1,1,0,1,1,1,0,1,1,0,0,1,0,1,1,1,0,1,1,1,0,1,1,0,1,1,0,1,0,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,0,0,1,1,1,0,1,0,1,0,0,0,1,1,1,0,0,0,1,1,0,0,1,1,0,1,0,1,1,0,1,0,0,0,1,1,1,1
+    // ], &network, "ZZZ", steps);
+    //
+    // println!("{steps}");
+    //
+    // dbg!();
     Ok(())
+}
+
+fn find_starting_nodes(network: &HashMap<String, [String; 2]>) -> Vec<&String> {
+    let keys: Vec<&String> = network
+        .keys()
+        .filter(|key| key.ends_with('A'))
+        .collect();
+    keys
 }
 
 #[cfg(test)]
